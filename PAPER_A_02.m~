@@ -11,8 +11,7 @@ numOfGatesPerLayer = [0 2;1 1;2 2;3 2];
 %% FIND THE CIRCUIT YOU ARE LOOKING FOR (FIG 2A)
 % INDEXING : (A)-(BC)-1 : Ath later, BCth gate, input 1
 % INDEXING : (A)-(BC)-2 : Ath later, BCth gate, input 2
-% INDEXING : (A)-(BC)-3 : Ath later, BCth gate, output
-% A = 0 -> INPUT LAYER
+% INDEXING : (A)-(BC)-1 : Ath later, BCth gate, input 1
 
 lookFor{1,1} = 13;
 lookFor{1,2} = [1012,2011,2021,3012];
