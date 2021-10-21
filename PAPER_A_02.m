@@ -1,6 +1,6 @@
 %% REPRODUCING PAPER FIGURE 2
 clear all;close all;clc;
-rng(14); % THIS GENERATES WHAT I WANTED
+rng(14); 
 numOfInputs        = 2; %number of inputs
 numOfOutputs       = 2; %number of outputs
 numOfGates         = 5; %number of NAND gates
