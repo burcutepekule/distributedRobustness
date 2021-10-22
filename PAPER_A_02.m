@@ -33,4 +33,5 @@ keepAllOutput = solveCircuit(numOfInputs,textCircuits,keepStructure,idxFound);
 clc
 structureTemp    = keepStructure{idxFound};
 textCircuitsTemp = textCircuits(cell2mat(textCircuits(:,1))==idxFound,:);
-drawCircuit(structureTemp,textCircuitsTemp,numOfOutputs)
+% drawCircuit(structureTemp,textCircuitsTemp,numOfOutputs)
+drawCircuit_text(structureTemp,textCircuitsTemp,numOfOutputs)

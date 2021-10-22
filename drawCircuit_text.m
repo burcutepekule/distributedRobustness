@@ -1,4 +1,4 @@
-function [] = drawCircuit(structureTemp,textCircuitsTemp,numOfOutputs)
+function [connectionMat_text] = drawCircuit_text(structureTemp,textCircuitsTemp,numOfOutputs)
 ymax = 10+size(textCircuitsTemp,1);
 xmax = 10+size(textCircuitsTemp,1);
 ymin = 0;
@@ -42,6 +42,7 @@ end
 
 connectionMat_x = [];
 connectionMat_y = [];
+connectionMat_text = [];
 for k=1:size(textCircuitsTemp,1)
     connectFrom = cell2mat(textCircuitsTemp(k,2));
     connectTo   = cell2mat(textCircuitsTemp(k,3));
@@ -53,8 +54,9 @@ for k=1:size(textCircuitsTemp,1)
             inp2connect     = mod(connectTo(j),10);
             inpNANDIdxs     = inletPointsNAND(inletPointsNAND(:,1)==layer2connect & inletPointsNAND(:,2)==gate2connect,:);
             inpNANDIdx      = inpNANDIdxs(inp2connect,:);
-            connectionMat_x = [connectionMat_x; outletPointsInp((outletPointsInp(:,2)==inpConnectFrom),3) inpNANDIdx(3)];
-            connectionMat_y = [connectionMat_y; outletPointsInp((outletPointsInp(:,2)==inpConnectFrom),4) inpNANDIdx(4)];
+            connectionMat_x = [connectionMat_x; outletPointsInp((outletPointsInp(:,2)==inpConnectFrom),3) inpNANDIdx(3) ];
+            connectionMat_y = [connectionMat_y; outletPointsInp((outletPointsInp(:,2)==inpConnectFrom),4) inpNANDIdx(4) ];
+            connectionMat_text = [connectionMat_text; string(connectFrom) string(connectTo(j))];
         end
     else
         layerConnectFrom = floor(connectFrom/1000);
@@ -71,6 +73,8 @@ for k=1:size(textCircuitsTemp,1)
             
             connectionMat_x = [connectionMat_x; outNANDIdxs(3) inpNANDIdx(3)];
             connectionMat_y = [connectionMat_y; outNANDIdxs(4) inpNANDIdx(4)];
+            connectionMat_text = [connectionMat_text; string(connectFrom) string(connectTo(j))];
+
         end
     end
 end
@@ -78,20 +82,21 @@ end
 layerConnectFrom = structureTemp(end,1);
 outletGatesNAND  = outletPointsNAND(outletPointsNAND(:,1)==layerConnectFrom,2);
 for k=outletGatesNAND'
+    connectFrom     = layerConnectFrom*1000+k*10+3;
     outNANDIdxs     = outletPointsNAND(outletPointsNAND(:,1)==layerConnectFrom & outletPointsNAND(:,2)==k,:);
     inpOutIdx       = inletPointsOut(k,:);
     connectionMat_x = [connectionMat_x; outNANDIdxs(3) inpOutIdx(3)];
     connectionMat_y = [connectionMat_y; outNANDIdxs(4) inpOutIdx(4)];
-    
+    connectionMat_text = [connectionMat_text; string(connectFrom) ['O_' num2str(k)]];
 end
 
-connectFrom      = cell2mat(textCircuitsTemp(end,3));
-connectTo   = cell2mat(textCircuitsTemp(k,3));
 
 cmap = lines(size(connectionMat_x,1));
 for k=1:size(connectionMat_x,1)
 %     line(connectionMat_x(k,:),connectionMat_y(k,:),'Color',cmap(k,:))
     line(connectionMat_x(k,:),connectionMat_y(k,:),'Color','k')
+    text(connectionMat_x(k,1),connectionMat_y(k,1),connectionMat_text(k,1))
+    text(connectionMat_x(k,2),connectionMat_y(k,2),connectionMat_text(k,2))
 end
 axis tight
 end
