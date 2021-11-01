@@ -10,7 +10,7 @@ inletPointsOut   = [];
 inletPointsNAND  = [];
 outletPointsNAND = [];
 
-close all;figure();axis([xmin xmax ymin ymax]);hold on;
+axis([xmin xmax ymin ymax]);hold on;
 for l=1:size(structureTemp,1)
     layerTemp = structureTemp(l,1);
     gatesTemp = structureTemp(l,2);
@@ -95,8 +95,8 @@ cmap = lines(size(connectionMat_x,1));
 for k=1:size(connectionMat_x,1)
 %     line(connectionMat_x(k,:),connectionMat_y(k,:),'Color',cmap(k,:))
     line(connectionMat_x(k,:),connectionMat_y(k,:),'Color','k')
-    text(connectionMat_x(k,1),connectionMat_y(k,1),connectionMat_text(k,1))
-    text(connectionMat_x(k,2),connectionMat_y(k,2),connectionMat_text(k,2))
+    text(connectionMat_x(k,1),connectionMat_y(k,1),connectionMat_text(k,1),'FontWeight','bold')
+    text(connectionMat_x(k,2),connectionMat_y(k,2),connectionMat_text(k,2),'FontWeight','bold')
 end
 axis tight
 end
