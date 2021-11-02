@@ -59,7 +59,6 @@ connectionMat_mutated = drawCircuit_text(structureTemp,textCircuitsTemp_mutated,
 % better to pick a gate in random which its input is connected to an ouput
 % that has two (or more) connections
 close all;
-% NOT WORKING YET - CHECK IT OUT
 textCircuitsTemp
 connectedNode2Remove=[];inputNodes2reconnect=0; % if more than 1, repeat to maintain full connectiveness
 while(isempty(connectedNode2Remove) && length(inputNodes2reconnect)==1)

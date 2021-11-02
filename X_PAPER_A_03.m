@@ -20,36 +20,28 @@ connectionMat    = drawCircuit_text(structureTemp,textCircuitsTemp,numOfOutputs)
 % (c) elimination of a node (gate removal) with probability In, and
 % (d) creation of a new node (gate addition) with probability Cn.
 % Here, we use Ec=0.8, Cc=0.8, In=0.3 and Cn=0.6.
-%%
-% RANDOM MUTATION #1
-% (a)+(b) -> pick a random layer n (from 0 (inp. layer) to structureTemp(end,1)-1), and from layer n to n+1, switch two connections.
-% structureTemp stays the same since the number of gates per layer doesn't change
-% textCircuitsTemp changes
-
-textCircuitsTemp
-layerMutateFrom = randi(structureTemp(end,1),1)-1; %input layer to second last layer (very last connected to output)
-layerMutateTo   = layerMutateFrom+1;
-switchGates     = layerMutateFrom*1000+10*datasample(1:structureTemp(layerMutateFrom+1,2),2,'Replace',false)+3;
-allGates        = cell2mat(textCircuitsTemp(:,2))';
-sw1             = find(allGates==switchGates(1));
-sw2             = find(allGates==switchGates(2));
-allConnections1 = cell2mat(textCircuitsTemp(sw1,3));
-allConnections2 = cell2mat(textCircuitsTemp(sw2,3));
-connection2sw1  = datasample(allConnections1,1);
-connection2sw2  = datasample(allConnections2,1);
-textCircuitsTemp_mutated = textCircuitsTemp;
-textCircuitsTemp_mutated{sw1,3}=[setdiff(allConnections1,connection2sw1),connection2sw2];
-textCircuitsTemp_mutated{sw2,3}=[setdiff(allConnections2,connection2sw2),connection2sw1];
+%% TRY OUT RANDOM MUTATION #1 (a)+(b)
+close all;
+[textCircuitsTemp_mutated,structureTemp_mutated] = mutation01(textCircuitsTemp,structureTemp);
+figure
+set(gcf, 'Position',  [100, 300, 1500, 400])
+subplot(1,2,1)
+connectionMat         = drawCircuit_text(structureTemp,textCircuitsTemp,numOfOutputs);
+subplot(1,2,2)
+connectionMat_mutated = drawCircuit_text(structureTemp_mutated,textCircuitsTemp_mutated,numOfOutputs);
+%% TRY OUT RANDOM MUTATION #2 (c)
+[textCircuitsTemp_mutated,structureTemp_mutated] = mutation02(textCircuitsTemp,structureTemp);
 close all;
 figure
 set(gcf, 'Position',  [100, 300, 1500, 400])
 subplot(1,2,1)
 connectionMat         = drawCircuit_text(structureTemp,textCircuitsTemp,numOfOutputs);
 subplot(1,2,2)
-connectionMat_mutated = drawCircuit_text(structureTemp,textCircuitsTemp_mutated,numOfOutputs);
+connectionMat_mutated = drawCircuit_text(structureTemp_mutated,textCircuitsTemp_mutated,numOfOutputs);
 %%
-% RANDOM MUTATION #2
-% (c) -> If you remove one gate, you remove two inputs and one output - so
+% RANDOM MUTATION #3
+% (d) -> If you add one gate, you add two inputs and one output 
+% You can add a gate either to the very 
 % delete one of the connections to the input that is connected to two (or
 % more) other gates (to maintain the full connectiveness), and connect the
 % other input to the output.
@@ -58,9 +50,6 @@ connectionMat_mutated = drawCircuit_text(structureTemp,textCircuitsTemp_mutated,
 
 % better to pick a gate in random which its input is connected to an ouput
 % that has two (or more) connections
-close all;
-% NOT WORKING YET - CHECK IT OUT
-textCircuitsTemp
 connectedNode2Remove=[];inputNodes2reconnect=0; % if more than 1, repeat to maintain full connectiveness
 while(isempty(connectedNode2Remove) && length(inputNodes2reconnect)==1)
     layerMutateAt     = randi(structureTemp(end,1),1); %can't delete input, so all middle layers
@@ -70,7 +59,7 @@ while(isempty(connectedNode2Remove) && length(inputNodes2reconnect)==1)
 %     inputNodes2remove = [2021,2022];
 %     outputNode2remove = max(inputNodes2remove)+1;
     gate2remove       = outputNode2remove-3;
-    [gate2remove]
+    sprintf("Gate removed : %d",gate2remove)
     inputNodes2reconnect =  cell2mat(textCircuitsTemp(cell2mat(textCircuitsTemp(:,2))==outputNode2remove,3));
     connectedNodes       = [];
     % what is connected to these input nodes that would be removed?
@@ -243,13 +232,4 @@ for k=1:size(allGatesRename,1)
         end
     end
 end
-
-close all;
-figure
-set(gcf, 'Position',  [100, 300, 1500, 400])
-subplot(1,2,1)
-connectionMat         = drawCircuit_text(structureTemp,textCircuitsTemp,numOfOutputs);
-subplot(1,2,2)
-connectionMat_mutated = drawCircuit_text(structureTemp_mutated,textCircuitsTemp_mutated,numOfOutputs);
-
 
