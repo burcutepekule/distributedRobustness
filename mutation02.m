@@ -9,14 +9,28 @@ function [textCircuitsTemp_mutated,structureTemp_mutated] = mutation02(textCircu
 
 % better to pick a gate in random which its input is connected to an ouput
 % that has two (or more) connections
-connectedNode2Remove=[];inputNodes2reconnect=0; % if more than 1, repeat to maintain full connectiveness
-while(isempty(connectedNode2Remove) && length(inputNodes2reconnect)==1)
+connectedNode2Remove=[];connection2Reconnect=[]; % if more than 1, repeat to maintain full connectiveness
+connectedNodes2Remove = [];diffNodes2Connect=[];condReconnect=true;
+% while(isempty(connectedNode2Remove) || length(inputNodes2reconnect)==1 || isempty(connectedNodes2Remove) || ~(isempty(diffNodes2Connect) || ~isempty(connectedNodes2Remove)))
+while(isempty(connectedNode2Remove) || (isempty(renameMat) && isempty(connection2Reconnect)) || isempty(connectedNodes2Remove) || ~(isempty(diffNodes2Connect) || ~isempty(connectedNodes2Remove)))
+    
     layerMutateAt     = randi(structureTemp(end,1),1); %can't delete input, so all middle layers
     inputNodes2remove = datasample(1000*layerMutateAt+10*(1:structureTemp(layerMutateAt+1,2)),1)+[1 2];
-    outputNode2remove = max(inputNodes2remove)+1;
+    
+%     layerMutateAt     = 3;
+%     inputNodes2remove = [3021,3022];
+%     
+%     layerMutateAt     = 2;
+%     inputNodes2remove = [2011,2012];
+%     
 %     layerMutateAt     = 2;
 %     inputNodes2remove = [2021,2022];
-%     outputNode2remove = max(inputNodes2remove)+1;
+%     
+%     layerMutateAt     = 1;
+%     inputNodes2remove = [1011,1012];
+  
+     outputNode2remove = max(inputNodes2remove)+1;
+    
     gate2remove       = outputNode2remove-3;
     sprintf("Gate removed : %d",gate2remove)
     inputNodes2reconnect =  cell2mat(textCircuitsTemp(cell2mat(textCircuitsTemp(:,2))==outputNode2remove,3));
@@ -30,66 +44,119 @@ while(isempty(connectedNode2Remove) && length(inputNodes2reconnect)==1)
             end
         end
     end
-    % does any of these ouputs have two (or more)
     connectedNodes2Remove = [];
     for i=1:length(connectedNodes)
-        if(length(cell2mat(textCircuitsTemp(cell2mat(textCircuitsTemp(:,2))==connectedNodes(i),3)))>1)
+        % Condition # 1 : does any of these ouputs have two (or more) connections?
+        connectionsOfInpNode = cell2mat(textCircuitsTemp(cell2mat(textCircuitsTemp(:,2))==connectedNodes(i),3));
+        cond_1 = length(connectionsOfInpNode)>1;
+        % Condition # 2 : does any of these ouputs would cause backward feedback if
+        % connected to the output?
+        connectionsOfOutNode = [];
+        outputsOfInpNode     = 10*unique(floor(connectionsOfInpNode./10))+3;
+        
+%         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%         for o=1:length(outputsOfInpNode)
+%             connectionsOfOutNode = [connectionsOfOutNode cell2mat(textCircuitsTemp(cell2mat(textCircuitsTemp(:,2))==outputsOfInpNode(o),3))];
+%         end
+%         if(~isempty(connectionsOfOutNode))
+%             cond_2 = min(floor(connectionsOfOutNode./1000)) <= structureTemp(end,1);
+%         else
+%             cond_2 = 0>1;
+%         end
+%         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        
+        cond_2 = min(floor(outputsOfInpNode./1000)) <= structureTemp(end,1);
+        
+        if(cond_1 && cond_2)
             connectedNodes2Remove = [connectedNodes2Remove connectedNodes(i)];
         end
     end
     connectedNodes2Remove   = unique(connectedNodes2Remove);
-    if(length(unique(connectedNodes))>1)
-        % might be multiple, sample 1
-        connectedNode2Remove    = datasample(connectedNodes2Remove,1);
-        connectedNode2Reconnect = datasample(setdiff(connectedNodes,connectedNodes2Remove),1);
-        connection2Remove_1     = [connectedNode2Remove inputNodes2remove(connectedNodes==connectedNode2Remove)];
-        connection2Remove_2     = [connectedNode2Reconnect inputNodes2remove(connectedNodes==connectedNode2Reconnect)];
+    diffNodes2Connect       = mysetdiff(connectedNodes,connectedNodes2Remove);
+    if(~isempty(diffNodes2Connect) || ~isempty(connectedNodes2Remove))
         
-        reconnect2 = cell2mat(textCircuitsTemp(cell2mat(textCircuitsTemp(:,2))==outputNode2remove,3));
-           
-
-        %                 connection2Reconnect    = [connectedNode2Reconnect outputNode2remove];
-        connection2Reconnect = [];
-        connection2Remove_o  = [];
-        renameMat            = [];
-        if(isempty(reconnect2)) % means it's a terminal node connected to the output
-%             renameMat = [connectedNode2Reconnect outputNode2remove]; %output
-            renameMat = [renameMat; connectedNode2Reconnect-1 outputNode2remove-1]; %inp_2
-            renameMat = [renameMat; connectedNode2Reconnect-2 outputNode2remove-2]; %inp_1
-        else
-            for l=1:length(reconnect2)
-                connection2Reconnect = [connection2Reconnect; connectedNode2Reconnect reconnect2(l)];
-                connection2Remove_o  = [connection2Remove_o; outputNode2remove reconnect2(l)];
+        if(length(unique(connectedNodes))>1)
+            % might be multiple, sample 1
+            
+            if(~isempty(diffNodes2Connect))
+                connectedNode2Reconnect = datasample(diffNodes2Connect,1);
+            else
+                connectedNode2Reconnect = datasample(connectedNodes,1);
             end
             
-        end
-        
-        % if empty, repeat
-    else
-        % if both inputs of the gate2remove were connected to the same
-        % node
-        connectedNode2Remove    = connectedNodes2Remove;
-        connectedNode2Reconnect = connectedNodes2Remove;
-        connection2Remove_1     = [connectedNode2Remove inputNodes2remove(1)];
-        connection2Remove_2     = [connectedNode2Reconnect inputNodes2remove(2)];
-        
-        reconnect2 = cell2mat(textCircuitsTemp(cell2mat(textCircuitsTemp(:,2))==outputNode2remove,3));
-        %                 connection2Reconnect    = [connectedNode2Reconnect outputNode2remove];
-        connection2Reconnect = [];
-        connection2Remove_o  = [];
-        renameMat            = [];
-        if(isempty(reconnect2)) % means it's a terminal node connected to the output
-%             renameMat = [connectedNode2Reconnect outputNode2remove]; %output
-            renameMat = [renameMat; connectedNode2Reconnect-1 outputNode2remove-1]; %inp_2
-            renameMat = [renameMat; connectedNode2Reconnect-2 outputNode2remove-2]; %inp_1
+            connectedNode2Remove    = datasample(setdiff(connectedNodes,connectedNode2Reconnect),1);
+            connection2Remove_1     = [connectedNode2Remove inputNodes2remove(connectedNodes==connectedNode2Remove)];
+            connection2Remove_2     = [connectedNode2Reconnect inputNodes2remove(connectedNodes==connectedNode2Reconnect)];
+            % is the reconnected node an input node?
+            condReconnect           = floor(connectedNode2Reconnect/1000)==0;
+            
+            reconnect2 = cell2mat(textCircuitsTemp(cell2mat(textCircuitsTemp(:,2))==outputNode2remove,3));
+            
+            
+            %                 connection2Reconnect    = [connectedNode2Reconnect outputNode2remove];
+            connection2Reconnect = [];
+            connection2Remove_o  = [];
+            renameMat            = [];
+            if(isempty(reconnect2)) % means it's a terminal node connected to the output
+                connectionsOfInpNode = cell2mat(textCircuitsTemp(cell2mat(textCircuitsTemp(:,2))==connectedNode2Reconnect,3));
+                % Condition # 2 : does any of these ouputs would cause backward feedback if
+                % connected to the output?
+                connectionsOfOutNode2bRemoved = [];
+                outputsOfInpNode     = 10*unique(floor(connectionsOfInpNode./10))+3;
+                
+                %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+                for o=1:length(outputsOfInpNode)
+                    connectionsOfOutNode2bRemoved = [connectionsOfOutNode2bRemoved;cell2mat(textCircuitsTemp(cell2mat(textCircuitsTemp(:,2))==outputsOfInpNode(o),3))];
+                end
+                if(~isempty(connectionsOfOutNode2bRemoved))
+                    cond_4 = min(floor(connectionsOfOutNode2bRemoved./1000)) <= structureTemp(end,1);
+                elseif(isempty(connectionsOfOutNode2bRemoved) && floor(outputsOfInpNode/1000)== structureTemp(end,1)) %if outputsOfInpNode is the output layer
+                    cond_4 = true;
+                else
+                    cond_4 = 0>1;
+                end
+                %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+                if(cond_4)
+                    renameMat = [connectedNode2Reconnect outputNode2remove]; %output
+                    renameMat = [renameMat; connectedNode2Reconnect-1 outputNode2remove-1]; %inp_2
+                    renameMat = [renameMat; connectedNode2Reconnect-2 outputNode2remove-2]; %inp_1
+                end
+            else
+                for l=1:length(reconnect2)
+                    connection2Reconnect = [connection2Reconnect; connectedNode2Reconnect reconnect2(l)];
+                    connection2Remove_o  = [connection2Remove_o; outputNode2remove reconnect2(l)];
+                end
+                
+            end
+            
+            % if empty, repeat
         else
-            for l=1:length(reconnect2)
-                connection2Reconnect = [connection2Reconnect; connectedNode2Reconnect reconnect2(l)];
-                connection2Remove_o  = [connection2Remove_o; outputNode2remove reconnect2(l)];
+            % if both inputs of the gate2remove were connected to the same
+            % node
+            connectedNode2Remove    = connectedNodes2Remove;
+            connectedNode2Reconnect = connectedNodes2Remove;
+            connection2Remove_1     = [connectedNode2Remove inputNodes2remove(1)];
+            connection2Remove_2     = [connectedNode2Reconnect inputNodes2remove(2)];
+            % is the reconnected node an input node?
+            condReconnect           = floor(connectedNode2Reconnect/1000)==0;
+            
+            reconnect2 = cell2mat(textCircuitsTemp(cell2mat(textCircuitsTemp(:,2))==outputNode2remove,3));
+            %                 connection2Reconnect    = [connectedNode2Reconnect outputNode2remove];
+            connection2Reconnect = [];
+            connection2Remove_o  = [];
+            renameMat            = [];
+            if(isempty(reconnect2)) % means it's a terminal node connected to the output
+                renameMat = [connectedNode2Reconnect outputNode2remove]; %output
+                renameMat = [renameMat; connectedNode2Reconnect-1 outputNode2remove-1]; %inp_2
+                renameMat = [renameMat; connectedNode2Reconnect-2 outputNode2remove-2]; %inp_1
+            else
+                for l=1:length(reconnect2)
+                    connection2Reconnect = [connection2Reconnect; connectedNode2Reconnect reconnect2(l)];
+                    connection2Remove_o  = [connection2Remove_o; outputNode2remove reconnect2(l)];
+                end
             end
         end
     end
-    
 end
 % connectionMat         = drawCircuit_text(structureTemp,textCircuitsTemp,numOfOutputs);
 textCircuitsTemp_mutated = textCircuitsTemp;
@@ -120,8 +187,18 @@ for k=1:size(connection2Reconnect,1)
 end
 
 if(~isempty(renameMat))
-%    renameMat = renameMat(2:end,:);% you actually don't need the first row since it's the output gate
-    for i=1:size(renameMat,2)
+    % for column 2
+    for i=1:size(renameMat,1)
+        renameTempOld = renameMat(i,1);
+        renameTempNew = renameMat(i,2);
+        for k=1:size(textCircuitsTemp_mutated,1)
+            oldRow = cell2mat(textCircuitsTemp_mutated(k,2));
+            oldRow(oldRow==renameTempOld)=renameTempNew;
+            textCircuitsTemp_mutated{k,2}=oldRow;
+        end
+    end
+    % for column 3
+    for i=1:size(renameMat,1)
         renameTempOld = renameMat(i,1);
         renameTempNew = renameMat(i,2);
         for k=1:size(textCircuitsTemp_mutated,1)
@@ -133,6 +210,7 @@ if(~isempty(renameMat))
 end
 % delete if any row is empty now
 textCircuitsTemp_mutated(cellfun(@isempty,textCircuitsTemp_mutated(:,3)),:)=[];
+%%
 [structureTemp_mutated,allGates] = text2structure(textCircuitsTemp_mutated);
 % Now to draw properly, you need to rename the gates since structure and therefore ordering might have changed
 % first check the differential corectness
@@ -153,10 +231,9 @@ for k=unique(indOfLayers)'
     end
     allGatesRename = [allGatesRename; allGatesUseOld allGatesUseNew];
 end
-% then check whether they start with 1
+% then check whether they start with gate index 1
 allGates          = allGatesRename(:,2);
 allGatesRenameNew = allGatesRename;
-
 allGatesUse   = allGates(floor(allGates./1000)>0);
 allGatesUse10 = floor(allGatesUse/10);
 indOfLayers   = floor(allGatesUse10/100);
@@ -175,6 +252,15 @@ for k=unique(indOfLayers)'
 end
 % combine both
 allGatesRename = [allGatesRenameNew(:,1) allGatesRename(:,2)];
+% check whether they start with level 1
+allGates          = allGatesRename(:,2);
+allGatesRenameNew = allGatesRename;
+allGatesUse    = allGates(floor(allGates./1000)>0);
+allGatesUse10  = floor(allGatesUse/10);
+indOfLayers    = floor(allGatesUse10/100);
+allGatesRename = [allGatesRenameNew(:,1) allGatesRenameNew(:,2)-1000*(min(indOfLayers)-1)];
+
+
 % find these and rename
 for k=1:size(allGatesRename,1)
     oldNameTemp = allGatesRename(k,1);
@@ -191,5 +277,63 @@ for k=1:size(allGatesRename,1)
         end
     end
 end
+
+
+% check whether number of layers increased / decreased?
+allGatesRename = [];
+for k=1:size(textCircuitsTemp_mutated,1)
+    outputGateLayer   = floor(cell2mat(textCircuitsTemp_mutated(k,2))./1000);
+    inputGateLayerMax = max(floor(cell2mat(textCircuitsTemp_mutated(k,3))./1000));
+    if(outputGateLayer==inputGateLayerMax)
+        output2change  = max(floor(cell2mat(textCircuitsTemp_mutated(k,3))));
+        allGatesRename = [allGatesRename; output2change   output2change+1000];
+        allGatesRename = [allGatesRename; output2change-1 output2change+1000-1];
+        allGatesRename = [allGatesRename; output2change-2 output2change+1000-2];
+    end
+end
+% check again the ordering if not empty
+if(~isempty(allGatesRename))
+    allGates          = allGatesRename(:,2);
+    allGatesRenameNew = allGatesRename;
+    allGatesUse   = allGates(floor(allGates./1000)>0);
+    allGatesUse10 = floor(allGatesUse/10);
+    indOfLayers   = floor(allGatesUse10/100);
+    allGatesRename= [];
+    for k=unique(indOfLayers)'
+        allGatesUseOld    = allGatesUse(indOfLayers==k);
+        allGatesUse10Temp = allGatesUse10(indOfLayers==k);
+        allGatesUse10TempMod100 = mod(allGatesUse10Temp,100);
+        if(min(unique(allGatesUse10TempMod100))>1)
+            diffSubt       = min(unique(allGatesUse10TempMod100))-1;
+            allGatesUseNew = allGatesUseOld-10*diffSubt;
+        else
+            allGatesUseNew = allGatesUseOld;
+        end
+        allGatesRename = [allGatesRename; allGatesUseOld allGatesUseNew];
+    end
+    % combine both
+    allGatesRename = [allGatesRenameNew(:,1) allGatesRename(:,2)];
+    %%
+    
+    % find these and rename
+    for k=1:size(allGatesRename,1)
+        oldNameTemp = allGatesRename(k,1);
+        newNameTemp = allGatesRename(k,2);
+        if(oldNameTemp~=newNameTemp)
+            for r=1:size(textCircuitsTemp_mutated,1)
+                for c=2:size(textCircuitsTemp_mutated,2)
+                    tempCell = cell2mat(textCircuitsTemp_mutated(r,c));
+                    if(ismember(oldNameTemp,tempCell))
+                        tempCell(oldNameTemp==tempCell)=newNameTemp;
+                        textCircuitsTemp_mutated{r,c}=tempCell;
+                    end
+                end
+            end
+        end
+    end
+end
+
+% since names changed, update structure again
+[structureTemp_mutated,allGates] = text2structure(textCircuitsTemp_mutated);
 end
 
