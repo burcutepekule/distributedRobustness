@@ -7,10 +7,10 @@ numOfSolutions = 100; %number of trials (max candidate solutions)
 %% STEP 1 : GENERATE RANDOM CIRCUITS
 [keepCircuits,keepStructure,keepNumOfLayers,textCircuits,strAllText] = generateRandomCircuits(numOfInputs,numOfOutputs,numOfGates,numOfSolutions);
 %% STEP 2 : SOLVE THE CIRCUITS
-keepAllOutput    = solveCircuit(numOfInputs,textCircuits,keepStructure);
+% keepAllOutput    = solveCircuit(numOfInputs,textCircuits,keepStructure);
 %% STEP 3 : VISUALIZE
 % idxFound         = 2; %pick a circuit index
-idxFound         = 3; %pick a circuit index
+idxFound         = 6; %pick a circuit index
 structureTemp    = keepStructure{idxFound};
 textCircuitsTemp = textCircuits(cell2mat(textCircuits(:,1))==idxFound,:);
 close all;
@@ -31,7 +31,6 @@ subplot(1,2,1)
 connectionMat         = drawCircuit_text(structureTemp,textCircuitsTemp,numOfOutputs);
 subplot(1,2,2)
 connectionMat_mutated = drawCircuit_text(structureTemp_mutated,textCircuitsTemp_mutated,numOfOutputs);
-
 %% TRY OUT RANDOM MUTATION #2 (c)
 clc
 [textCircuitsTemp_mutated,structureTemp_mutated] = mutation02(textCircuitsTemp,structureTemp);
@@ -42,12 +41,14 @@ subplot(1,2,1)
 connectionMat         = drawCircuit_text(structureTemp,textCircuitsTemp,numOfOutputs);
 subplot(1,2,2)
 connectionMat_mutated = drawCircuit_text(structureTemp_mutated,textCircuitsTemp_mutated,numOfOutputs);
-% problematic :     "Gate removed : 3010"
-%%
-% RANDOM MUTATION #3
-% (d) -> If you add one gate, you add two inputs and one output 
-% You can add a gate either to the very 
-% delete one of the connections to the input that is connected to two (or
-% more) other gates (to maintain the full connectiveness), and connect the
-% other input to the output.
+%% TRY OUT RANDOM MUTATION #3 (d)
+clc
+[textCircuitsTemp_mutated,structureTemp_mutated] = mutation03(textCircuitsTemp,structureTemp);
+close all;
+figure
+set(gcf, 'Position',  [100, 300, 1500, 400])
+subplot(1,2,1)
+connectionMat         = drawCircuit_text(structureTemp,textCircuitsTemp,numOfOutputs);
+subplot(1,2,2)
+connectionMat_mutated = drawCircuit_text(structureTemp_mutated,textCircuitsTemp_mutated,numOfOutputs);
 
