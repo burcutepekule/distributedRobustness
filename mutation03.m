@@ -150,5 +150,8 @@ else
         end
     end
 end
+
+sprintf("Gate Added to layer : %d",add2layer)
+
 end
 

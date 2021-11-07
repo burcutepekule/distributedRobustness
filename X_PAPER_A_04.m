@@ -1,54 +1,81 @@
 clear all;close all;clc;
 rng(14);
-numOfInputs    = 2; %number of inputs
+numOfInputs    = 3; %number of inputs
 numOfOutputs   = 2; %number of outputs
 numOfGates     = 5; %number of NAND gates
-numOfSolutions = 100; %number of trials (max candidate solutions)
-%% STEP 1 : GENERATE RANDOM CIRCUITS
-[keepCircuits,keepStructure,keepNumOfLayers,textCircuits,strAllText] = generateRandomCircuits(numOfInputs,numOfOutputs,numOfGates,numOfSolutions);
-%% STEP 2 : SOLVE THE CIRCUITS
-% keepAllOutput    = solveCircuit(numOfInputs,textCircuits,keepStructure);
-%% STEP 3 : VISUALIZE
-% idxFound         = 2; %pick a circuit index
-idxFound         = 6; %pick a circuit index
-structureTemp    = keepStructure{idxFound};
-textCircuitsTemp = textCircuits(cell2mat(textCircuits(:,1))==idxFound,:);
-close all;
-connectionMat    = drawCircuit_text(structureTemp,textCircuitsTemp,numOfOutputs);
-%% STEP 4 : EVOLUTION (?)
+numOfRuns      = 200; %number of trials 
+numOfCandidateSolutions = 10; %number of candidate solutions
+outputMat = randn([2^numOfInputs,numOfOutputs])>0; %Random Input - Output truthtable
+numSims   = 1000;
+%% EVOLUTION
 % The random mutations (always respecting the back- ward patterning) can be:
 % (a) elimination of an existing connection, with probability Ec,
 % (b) creation of a new connection with probability Cc,
 % (c) elimination of a node (gate removal) with probability In, and
 % (d) creation of a new node (gate addition) with probability Cn.
 % Here, we use Ec=0.8, Cc=0.8, In=0.3 and Cn=0.6.
-%% TRY OUT RANDOM MUTATION #1 (a)+(b)
-close all;
-[textCircuitsTemp_mutated,structureTemp_mutated] = mutation01(textCircuitsTemp,structureTemp);
-figure
-set(gcf, 'Position',  [100, 300, 1500, 400])
-subplot(1,2,1)
-connectionMat         = drawCircuit_text(structureTemp,textCircuitsTemp,numOfOutputs);
-subplot(1,2,2)
-connectionMat_mutated = drawCircuit_text(structureTemp_mutated,textCircuitsTemp_mutated,numOfOutputs);
-%% TRY OUT RANDOM MUTATION #2 (c)
-clc
-[textCircuitsTemp_mutated,structureTemp_mutated] = mutation02(textCircuitsTemp,structureTemp);
-close all;
-figure
-set(gcf, 'Position',  [100, 300, 1500, 400])
-subplot(1,2,1)
-connectionMat         = drawCircuit_text(structureTemp,textCircuitsTemp,numOfOutputs);
-subplot(1,2,2)
-connectionMat_mutated = drawCircuit_text(structureTemp_mutated,textCircuitsTemp_mutated,numOfOutputs);
-%% TRY OUT RANDOM MUTATION #3 (d)
-clc
-[textCircuitsTemp_mutated,structureTemp_mutated] = mutation03(textCircuitsTemp,structureTemp);
-close all;
-figure
-set(gcf, 'Position',  [100, 300, 1500, 400])
-subplot(1,2,1)
-connectionMat         = drawCircuit_text(structureTemp,textCircuitsTemp,numOfOutputs);
-subplot(1,2,2)
-connectionMat_mutated = drawCircuit_text(structureTemp_mutated,textCircuitsTemp_mutated,numOfOutputs);
+
+% prob of mutation #1 0.8
+% prob of mutation #2 0.3
+% prob of mutation #3 0.6
+
+[keepCircuits,keepStructure,keepNumOfLayers,textCircuits,strAllText] = generateRandomCircuits(numOfInputs,numOfOutputs,numOfGates,numOfRuns,numOfCandidateSolutions);
+[~,keepOutput] = solveCircuit(numOfInputs,textCircuits,keepStructure);
+fitness(1,:)   = 1-reshape(mean(mean(abs(keepOutput-outputMat),1),2),1,[]);
+fittestCircuitIdx = datasample(find(fitness(1,:)==max(fitness(1,:))),1); % sample one if multiple
+
+keepCircuitsMutated = keepCircuits;
+textCircuitsMutated = textCircuits;
+structuresMutated   = keepStructure;
+
+for sim=2:numSims
+
+    
+    fittestStructure     = structuresMutated{fittestCircuitIdx};
+    fittestTextCircuit   = textCircuitsMutated(cell2mat(textCircuitsMutated(:,1))==fittestCircuitIdx,:);
+    
+    structuresMutated       = [];
+    textCircuitsMutated     = [];
+    
+    indexColumnCircuit      = cell2mat(fittestTextCircuit(:,1));
+    fittestTextCircuit(:,1) = num2cell(ones(size(indexColumnCircuit))); % index as 1
+    textCircuitsMutated     = fittestTextCircuit;
+    structuresMutated{1}    = fittestStructure;
+    
+    mutationIndexVec = datasample(1:3,numOfCandidateSolutions-1,'Weights',[0.8 0.3 0.6],'Replace',true);
+    for mut=1:numOfCandidateSolutions-1
+        [textCircuitsTemp_mutated,structureTemp_mutated] = mutateCircuit(fittestTextCircuit,fittestStructure,mutationIndexVec(mut));
+        indexColumnCircuit      = cell2mat(textCircuitsTemp_mutated(:,1));
+        textCircuitsTemp_mutated(:,1) = num2cell((mut+1)*ones(size(indexColumnCircuit))); % index as 1
+        textCircuitsMutated        = [textCircuitsMutated;textCircuitsTemp_mutated];
+        structuresMutated{mut+1}   = structureTemp_mutated;
+    end
+    
+    [~,keepOutput]    = solveCircuit(numOfInputs,textCircuitsMutated,structuresMutated);
+    fitness(sim,:)    = 1-reshape(mean(mean(abs(keepOutput-outputMat),1),2),1,[]);
+    fittestCircuitIdx = datasample(find(fitness(sim,:)==max(fitness(sim,:))),1); % sample one if multiple
+    [sim fitness(sim,:)]
+end
+%%
+plot(max(fitness,[],2))
+%%
+% connectionMat    = drawCircuit_text(structureTemp_mutated,textCircuitsTemp_mutated,numOfOutputs);
+% structureTemp_mutated
+% textCircuitsTemp_mutated
+% %%
+% [textCircuitsTemp_mutated2,structureTemp_mutated2] = mutation02(textCircuitsTemp_mutated,structureTemp_mutated);
+% close all;
+% connectionMat    = drawCircuit_text(structureTemp_mutated2,textCircuitsTemp_mutated2,numOfOutputs);
+% 
+% %%
+% 
+
+%% STEP 3 : VISUALIZE
+% idxFound             = 1; %pick a circuit index
+% structureTempPlot    = structuresMutated{idxFound};
+% structureTempSolve   = structuresMutated(idxFound);
+% textCircuitsTemp     = textCircuitsMutated(cell2mat(textCircuitsMutated(:,1))==idxFound,:);
+% close all;
+% connectionMat    = drawCircuit_text(structureTempPlot,textCircuitsTemp,numOfOutputs);
+% [keepAllOutput,keepOutput] = solveCircuit(numOfInputs,textCircuitsTemp,structureTempSolve);
 

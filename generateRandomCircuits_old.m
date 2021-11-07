@@ -1,28 +1,28 @@
 function [keepCircuits,keepStructure,keepNumOfLayers,textCircuits,strAllText] = generateRandomCircuits(varargin)
-if(length(varargin)==5)
+if(length(varargin)==4)
     numOfInputs    = varargin{1};
     numOfOutputs   = varargin{2};
     numOfGates     = varargin{3};
     numOfSolutions = varargin{4};
-    numOfCandidateSolutions = varargin{5};
     runSims        = 1;
+    
+elseif(length(varargin)==5)
+    numOfInputs    = varargin{1};
+    numOfOutputs   = varargin{2};
+    numOfGates     = varargin{3};
+    numOfSolutions = varargin{4};
+    numOfLayers    = varargin{5};
+    runSims        = 2;
+    
 elseif(length(varargin)==6)
     numOfInputs    = varargin{1};
     numOfOutputs   = varargin{2};
     numOfGates     = varargin{3};
     numOfSolutions = varargin{4};
     numOfLayers    = varargin{5};
-    numOfCandidateSolutions = varargin{6};
-    runSims        = 2;
-elseif(length(varargin)==7)
-    numOfInputs    = varargin{1};
-    numOfOutputs   = varargin{2};
-    numOfGates     = varargin{3};
-    numOfSolutions = varargin{4};
-    numOfLayers    = varargin{5};
     numOfGatesPerLayer = varargin{6};
-    numOfCandidateSolutions = varargin{7};
-    runSims        = 3;   
+    runSims        = 3;
+    
 else
     disp('Number of inputs doesnt make sense!')
     runSims        = 0;
@@ -305,16 +305,7 @@ end
 
 if(convert==1)
     % Convert circuit structure to text
-    if(size(keepNumOfLayers,2)<numOfCandidateSolutions)
-         disp('Not enough candidate solutions, increase numOfRuns')   
-         [textCircuits,strAllText] = circuit2text(keepCircuits,keepStructure);
-    else
-        keepCircuits    = keepCircuits(1:numOfCandidateSolutions);
-        keepStructure   = keepStructure(1:numOfCandidateSolutions);
-        keepNumOfLayers = keepNumOfLayers(1:numOfCandidateSolutions);
-        [textCircuits,strAllText] = circuit2text(keepCircuits,keepStructure);
-    end
-
+    [textCircuits,strAllText] = circuit2text(keepCircuits,keepStructure);
 else
     textCircuits=[];
     strAllText =[];
@@ -322,7 +313,6 @@ else
     keepStructure=[];
     keepNumOfLayers=[];
 end
-
 
 end
 

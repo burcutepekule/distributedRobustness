@@ -1,4 +1,4 @@
-function [keepAllOutput] = solveCircuit(varargin)
+function [keepAllOutput,keepOutput] = solveCircuit(varargin)
 
 if(length(varargin)==3)
     numOfInputs    = varargin{1};
@@ -24,8 +24,9 @@ counter          = 1;
 %%
 
 for tempCircuitIdx=tempCircuitIdxVec
+    tempCircuitIdx
     for inpIdx=1:size(inpMat,1)
-        inpIdx
+%         inpIdx
         
         for i=1:numOfInputs
             inpGateNameTemp = ['i_' num2str(i) '3'];
@@ -89,7 +90,7 @@ for tempCircuitIdx=tempCircuitIdxVec
         end
         
         for eq=2:size(eqnKeep,1)
-            eq
+%             eq
             eqnTemp       = eqnKeep(eq);
             eqnStr_output = extractBefore(char(eqnTemp)," ==");
             allSyms = symvar(eqnTemp);
@@ -116,7 +117,7 @@ for tempCircuitIdx=tempCircuitIdxVec
         finalOutputGates    = unique(reshape(repmat(1000*tempStructure(end,1)+10*(1:tempStructure(end,2))',1,1)+repmat(3,gateTemp,1),1,[]));
         
         for o=1:length(finalOutputGates)
-            keepOutput(inpIdx,o)=evalin('caller',strcat('i_',sprintf('%d',finalOutputGates(o))));
+            keepOutput(inpIdx,o,tempCircuitIdx)=evalin('caller',strcat('i_',sprintf('%d',finalOutputGates(o))));
         end
         
         % for the global environment, one can use eval from syms

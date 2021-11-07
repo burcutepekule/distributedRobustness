@@ -10,26 +10,29 @@ function [textCircuitsTemp_mutated,structureTemp_mutated] = mutation02(textCircu
 % better to pick a gate in random which its input is connected to an ouput
 % that has two (or more) connections
 connectedNode2Remove=[];connection2Reconnect=[]; % if more than 1, repeat to maintain full connectiveness
-connectedNodes2Remove = [];diffNodes2Connect=[];condReconnect=true;
+connectedNodes2Remove = [];diffNodes2Connect=[];condReconnect=true;backwardConnections=true;
 % while(isempty(connectedNode2Remove) || length(inputNodes2reconnect)==1 || isempty(connectedNodes2Remove) || ~(isempty(diffNodes2Connect) || ~isempty(connectedNodes2Remove)))
-while(isempty(connectedNode2Remove) || (isempty(renameMat) && isempty(connection2Reconnect)) || isempty(connectedNodes2Remove) || ~(isempty(diffNodes2Connect) || ~isempty(connectedNodes2Remove)))
+while(any(backwardConnections) || isempty(connectedNode2Remove) || (isempty(renameMat) && isempty(connection2Reconnect)) || isempty(connectedNodes2Remove) || ~(isempty(diffNodes2Connect) || ~isempty(connectedNodes2Remove)))
     
     layerMutateAt     = randi(structureTemp(end,1),1); %can't delete input, so all middle layers
     inputNodes2remove = datasample(1000*layerMutateAt+10*(1:structureTemp(layerMutateAt+1,2)),1)+[1 2];
     
-%     layerMutateAt     = 3;
-%     inputNodes2remove = [3021,3022];
-%     
-%     layerMutateAt     = 2;
-%     inputNodes2remove = [2011,2012];
-%     
-%     layerMutateAt     = 2;
-%     inputNodes2remove = [2021,2022];
-%     
-%     layerMutateAt     = 1;
-%     inputNodes2remove = [1011,1012];
-  
-     outputNode2remove = max(inputNodes2remove)+1;
+        layerMutateAt     = 1;
+        inputNodes2remove = [1011,1012];
+    
+    %     layerMutateAt     = 3;
+    %     inputNodes2remove = [3021,3022];
+    %
+    %     layerMutateAt     = 2;
+    %     inputNodes2remove = [2011,2012];
+    %
+    %     layerMutateAt     = 2;
+    %     inputNodes2remove = [2021,2022];
+    %
+    %     layerMutateAt     = 6;
+    %     inputNodes2remove = [6021,6022];
+    
+    outputNode2remove = max(inputNodes2remove)+1;
     
     gate2remove       = outputNode2remove-3;
     sprintf("Gate removed : %d",gate2remove)
@@ -54,16 +57,16 @@ while(isempty(connectedNode2Remove) || (isempty(renameMat) && isempty(connection
         connectionsOfOutNode = [];
         outputsOfInpNode     = 10*unique(floor(connectionsOfInpNode./10))+3;
         
-%         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%         for o=1:length(outputsOfInpNode)
-%             connectionsOfOutNode = [connectionsOfOutNode cell2mat(textCircuitsTemp(cell2mat(textCircuitsTemp(:,2))==outputsOfInpNode(o),3))];
-%         end
-%         if(~isempty(connectionsOfOutNode))
-%             cond_2 = min(floor(connectionsOfOutNode./1000)) <= structureTemp(end,1);
-%         else
-%             cond_2 = 0>1;
-%         end
-%         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        %         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        %         for o=1:length(outputsOfInpNode)
+        %             connectionsOfOutNode = [connectionsOfOutNode cell2mat(textCircuitsTemp(cell2mat(textCircuitsTemp(:,2))==outputsOfInpNode(o),3))];
+        %         end
+        %         if(~isempty(connectionsOfOutNode))
+        %             cond_2 = min(floor(connectionsOfOutNode./1000)) <= structureTemp(end,1);
+        %         else
+        %             cond_2 = 0>1;
+        %         end
+        %         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         
         cond_2 = min(floor(outputsOfInpNode./1000)) <= structureTemp(end,1);
         
@@ -110,7 +113,7 @@ while(isempty(connectedNode2Remove) || (isempty(renameMat) && isempty(connection
                 end
                 if(~isempty(connectionsOfOutNode2bRemoved))
                     cond_4 = min(floor(connectionsOfOutNode2bRemoved./1000)) <= structureTemp(end,1);
-                elseif(isempty(connectionsOfOutNode2bRemoved) && floor(outputsOfInpNode/1000)== structureTemp(end,1)) %if outputsOfInpNode is the output layer
+                elseif(isempty(connectionsOfOutNode2bRemoved) && max(floor(outputsOfInpNode/1000)== structureTemp(end,1))) %if outputsOfInpNode is the output layer
                     cond_4 = true;
                 else
                     cond_4 = 0>1;
@@ -157,142 +160,81 @@ while(isempty(connectedNode2Remove) || (isempty(renameMat) && isempty(connection
             end
         end
     end
-end
-% connectionMat         = drawCircuit_text(structureTemp,textCircuitsTemp,numOfOutputs);
-textCircuitsTemp_mutated = textCircuitsTemp;
-% remove the connections
-% Connection # 1
-removeConnectionInd = find(cell2mat(textCircuitsTemp_mutated(:,2))==connection2Remove_1(1));
-oldConnections      = cell2mat(textCircuitsTemp_mutated(removeConnectionInd,3));
-newConnections      = setdiff(oldConnections,connection2Remove_1(2));
-textCircuitsTemp_mutated{removeConnectionInd,3} = newConnections;
-
-removeConnectionInd = find(cell2mat(textCircuitsTemp_mutated(:,2))==connection2Remove_2(1));
-oldConnections      = cell2mat(textCircuitsTemp_mutated(removeConnectionInd,3));
-newConnections      = setdiff(oldConnections,connection2Remove_2(2));
-textCircuitsTemp_mutated{removeConnectionInd,3} = newConnections;
-
-for k=1:size(connection2Remove_o,1)
-    removeConnectionInd = find(cell2mat(textCircuitsTemp_mutated(:,2))==connection2Remove_o(k,1));
+    
+    % connectionMat         = drawCircuit_text(structureTemp,textCircuitsTemp,numOfOutputs);
+    textCircuitsTemp_mutated = textCircuitsTemp;
+    % remove the connections
+    % Connection # 1
+    removeConnectionInd = find(cell2mat(textCircuitsTemp_mutated(:,2))==connection2Remove_1(1));
     oldConnections      = cell2mat(textCircuitsTemp_mutated(removeConnectionInd,3));
-    newConnections      = setdiff(oldConnections,connection2Remove_o(k,2));
+    newConnections      = setdiff(oldConnections,connection2Remove_1(2));
     textCircuitsTemp_mutated{removeConnectionInd,3} = newConnections;
-end
-% re-connect / re-name the new connections
-for k=1:size(connection2Reconnect,1)
-    reconnectInd        = find(cell2mat(textCircuitsTemp_mutated(:,2))==connection2Reconnect(k,1));
-    oldConnections      = cell2mat(textCircuitsTemp_mutated(reconnectInd,3));
-    newConnections      = [oldConnections,connection2Reconnect(k,2)];
-    textCircuitsTemp_mutated{reconnectInd,3} = newConnections;
-end
-
-if(~isempty(renameMat))
-    % for column 2
-    for i=1:size(renameMat,1)
-        renameTempOld = renameMat(i,1);
-        renameTempNew = renameMat(i,2);
-        for k=1:size(textCircuitsTemp_mutated,1)
-            oldRow = cell2mat(textCircuitsTemp_mutated(k,2));
-            oldRow(oldRow==renameTempOld)=renameTempNew;
-            textCircuitsTemp_mutated{k,2}=oldRow;
+    
+    removeConnectionInd = find(cell2mat(textCircuitsTemp_mutated(:,2))==connection2Remove_2(1));
+    oldConnections      = cell2mat(textCircuitsTemp_mutated(removeConnectionInd,3));
+    newConnections      = setdiff(oldConnections,connection2Remove_2(2));
+    textCircuitsTemp_mutated{removeConnectionInd,3} = newConnections;
+    
+    for k=1:size(connection2Remove_o,1)
+        removeConnectionInd = find(cell2mat(textCircuitsTemp_mutated(:,2))==connection2Remove_o(k,1));
+        oldConnections      = cell2mat(textCircuitsTemp_mutated(removeConnectionInd,3));
+        newConnections      = setdiff(oldConnections,connection2Remove_o(k,2));
+        textCircuitsTemp_mutated{removeConnectionInd,3} = newConnections;
+    end
+    % re-connect / re-name the new connections
+    for k=1:size(connection2Reconnect,1)
+        reconnectInd        = find(cell2mat(textCircuitsTemp_mutated(:,2))==connection2Reconnect(k,1));
+        oldConnections      = cell2mat(textCircuitsTemp_mutated(reconnectInd,3));
+        newConnections      = [oldConnections,connection2Reconnect(k,2)];
+        textCircuitsTemp_mutated{reconnectInd,3} = newConnections;
+    end
+    
+    if(~isempty(renameMat))
+        % for column 2
+        for i=1:size(renameMat,1)
+            renameTempOld = renameMat(i,1);
+            renameTempNew = renameMat(i,2);
+            for k=1:size(textCircuitsTemp_mutated,1)
+                oldRow = cell2mat(textCircuitsTemp_mutated(k,2));
+                oldRow(oldRow==renameTempOld)=renameTempNew;
+                textCircuitsTemp_mutated{k,2}=oldRow;
+            end
         end
-    end
-    % for column 3
-    for i=1:size(renameMat,1)
-        renameTempOld = renameMat(i,1);
-        renameTempNew = renameMat(i,2);
-        for k=1:size(textCircuitsTemp_mutated,1)
-            oldRow = cell2mat(textCircuitsTemp_mutated(k,3));
-            oldRow(oldRow==renameTempOld)=renameTempNew;
-            textCircuitsTemp_mutated{k,3}=oldRow;
-        end
-    end
-end
-% delete if any row is empty now
-textCircuitsTemp_mutated(cellfun(@isempty,textCircuitsTemp_mutated(:,3)),:)=[];
-%%
-[structureTemp_mutated,allGates] = text2structure(textCircuitsTemp_mutated);
-% Now to draw properly, you need to rename the gates since structure and therefore ordering might have changed
-% first check the differential corectness
-allGatesUse   = allGates(floor(allGates./1000)>0);
-allGatesUse10 = floor(allGatesUse/10);
-indOfLayers   = floor(allGatesUse10/100);
-allGatesRename= [];
-for k=unique(indOfLayers)'
-    allGatesUseOld    = allGatesUse(indOfLayers==k);
-    allGatesUse10Temp = allGatesUse10(indOfLayers==k);
-    diffGates         = diff(allGatesUse10Temp);
-    if(any(diffGates>1))
-        cumsumDiff     = cumsum(diffGates);
-        subtractDiff   = [0;cumsumDiff(cumsumDiff==0);cumsumDiff(cumsumDiff>0)-1];
-        allGatesUseNew = allGatesUseOld-10*subtractDiff;
-    else
-        allGatesUseNew = allGatesUseOld;
-    end
-    allGatesRename = [allGatesRename; allGatesUseOld allGatesUseNew];
-end
-% then check whether they start with gate index 1
-allGates          = allGatesRename(:,2);
-allGatesRenameNew = allGatesRename;
-allGatesUse   = allGates(floor(allGates./1000)>0);
-allGatesUse10 = floor(allGatesUse/10);
-indOfLayers   = floor(allGatesUse10/100);
-allGatesRename= [];
-for k=unique(indOfLayers)'
-    allGatesUseOld    = allGatesUse(indOfLayers==k);
-    allGatesUse10Temp = allGatesUse10(indOfLayers==k);
-    allGatesUse10TempMod100 = mod(allGatesUse10Temp,100);
-    if(min(unique(allGatesUse10TempMod100))>1)
-        diffSubt       = min(unique(allGatesUse10TempMod100))-1;
-        allGatesUseNew = allGatesUseOld-10*diffSubt;
-    else
-        allGatesUseNew = allGatesUseOld;
-    end
-    allGatesRename = [allGatesRename; allGatesUseOld allGatesUseNew];
-end
-% combine both
-allGatesRename = [allGatesRenameNew(:,1) allGatesRename(:,2)];
-% check whether they start with level 1
-allGates          = allGatesRename(:,2);
-allGatesRenameNew = allGatesRename;
-allGatesUse    = allGates(floor(allGates./1000)>0);
-allGatesUse10  = floor(allGatesUse/10);
-indOfLayers    = floor(allGatesUse10/100);
-allGatesRename = [allGatesRenameNew(:,1) allGatesRenameNew(:,2)-1000*(min(indOfLayers)-1)];
-
-
-% find these and rename
-for k=1:size(allGatesRename,1)
-    oldNameTemp = allGatesRename(k,1);
-    newNameTemp = allGatesRename(k,2);
-    if(oldNameTemp~=newNameTemp)
-        for r=1:size(textCircuitsTemp_mutated,1)
-            for c=2:size(textCircuitsTemp_mutated,2)
-                tempCell = cell2mat(textCircuitsTemp_mutated(r,c));
-                if(ismember(oldNameTemp,tempCell))
-                    tempCell(oldNameTemp==tempCell)=newNameTemp;
-                    textCircuitsTemp_mutated{r,c}=tempCell;
-                end
+        % for column 3
+        for i=1:size(renameMat,1)
+            renameTempOld = renameMat(i,1);
+            renameTempNew = renameMat(i,2);
+            for k=1:size(textCircuitsTemp_mutated,1)
+                oldRow = cell2mat(textCircuitsTemp_mutated(k,3));
+                oldRow(oldRow==renameTempOld)=renameTempNew;
+                textCircuitsTemp_mutated{k,3}=oldRow;
             end
         end
     end
-end
-
-
-% check whether number of layers increased / decreased?
-allGatesRename = [];
-for k=1:size(textCircuitsTemp_mutated,1)
-    outputGateLayer   = floor(cell2mat(textCircuitsTemp_mutated(k,2))./1000);
-    inputGateLayerMax = max(floor(cell2mat(textCircuitsTemp_mutated(k,3))./1000));
-    if(outputGateLayer==inputGateLayerMax)
-        output2change  = max(floor(cell2mat(textCircuitsTemp_mutated(k,3))));
-        allGatesRename = [allGatesRename; output2change   output2change+1000];
-        allGatesRename = [allGatesRename; output2change-1 output2change+1000-1];
-        allGatesRename = [allGatesRename; output2change-2 output2change+1000-2];
+    % delete if any row is empty now
+    textCircuitsTemp_mutated(cellfun(@isempty,textCircuitsTemp_mutated(:,3)),:)=[];
+    %%
+    [structureTemp_mutated,allGates] = text2structure(textCircuitsTemp_mutated);
+    % Now to draw properly, you need to rename the gates since structure and therefore ordering might have changed
+    % first check the differential corectness
+    allGatesUse   = allGates(floor(allGates./1000)>0);
+    allGatesUse10 = floor(allGatesUse/10);
+    indOfLayers   = floor(allGatesUse10/100);
+    allGatesRename= [];
+    for k=unique(indOfLayers)'
+        allGatesUseOld    = allGatesUse(indOfLayers==k);
+        allGatesUse10Temp = allGatesUse10(indOfLayers==k);
+        diffGates         = diff(allGatesUse10Temp);
+        if(any(diffGates>1))
+            cumsumDiff     = cumsum(diffGates);
+            subtractDiff   = [0;cumsumDiff(cumsumDiff==0);cumsumDiff(cumsumDiff>0)-1];
+            allGatesUseNew = allGatesUseOld-10*subtractDiff;
+        else
+            allGatesUseNew = allGatesUseOld;
+        end
+        allGatesRename = [allGatesRename; allGatesUseOld allGatesUseNew];
     end
-end
-% check again the ordering if not empty
-if(~isempty(allGatesRename))
+    % then check whether they start with gate index 1
     allGates          = allGatesRename(:,2);
     allGatesRenameNew = allGatesRename;
     allGatesUse   = allGates(floor(allGates./1000)>0);
@@ -313,7 +255,14 @@ if(~isempty(allGatesRename))
     end
     % combine both
     allGatesRename = [allGatesRenameNew(:,1) allGatesRename(:,2)];
-    %%
+    % check whether they start with level 1
+    allGates          = allGatesRename(:,2);
+    allGatesRenameNew = allGatesRename;
+    allGatesUse    = allGates(floor(allGates./1000)>0);
+    allGatesUse10  = floor(allGatesUse/10);
+    indOfLayers    = floor(allGatesUse10/100);
+    allGatesRename = [allGatesRenameNew(:,1) allGatesRenameNew(:,2)-1000*(min(indOfLayers)-1)];
+    
     
     % find these and rename
     for k=1:size(allGatesRename,1)
@@ -331,8 +280,73 @@ if(~isempty(allGatesRename))
             end
         end
     end
+    
+    
+    % check whether number of layers increased / decreased?
+    allGatesRename = [];
+    for k=1:size(textCircuitsTemp_mutated,1)
+        outputGateLayer   = floor(cell2mat(textCircuitsTemp_mutated(k,2))./1000);
+        inputGateLayerMax = max(floor(cell2mat(textCircuitsTemp_mutated(k,3))./1000));
+        if(outputGateLayer==inputGateLayerMax)
+            output2change  = max(floor(cell2mat(textCircuitsTemp_mutated(k,3))));
+            allGatesRename = [allGatesRename; output2change   output2change+1000];
+            allGatesRename = [allGatesRename; output2change-1 output2change+1000-1];
+            allGatesRename = [allGatesRename; output2change-2 output2change+1000-2];
+        end
+    end
+    % check again the ordering if not empty
+    if(~isempty(allGatesRename))
+        allGates          = allGatesRename(:,2);
+        allGatesRenameNew = allGatesRename;
+        allGatesUse   = allGates(floor(allGates./1000)>0);
+        allGatesUse10 = floor(allGatesUse/10);
+        indOfLayers   = floor(allGatesUse10/100);
+        allGatesRename= [];
+        for k=unique(indOfLayers)'
+            allGatesUseOld    = allGatesUse(indOfLayers==k);
+            allGatesUse10Temp = allGatesUse10(indOfLayers==k);
+            allGatesUse10TempMod100 = mod(allGatesUse10Temp,100);
+            if(min(unique(allGatesUse10TempMod100))>1)
+                diffSubt       = min(unique(allGatesUse10TempMod100))-1;
+                allGatesUseNew = allGatesUseOld-10*diffSubt;
+            else
+                allGatesUseNew = allGatesUseOld;
+            end
+            allGatesRename = [allGatesRename; allGatesUseOld allGatesUseNew];
+        end
+        % combine both
+        allGatesRename = [allGatesRenameNew(:,1) allGatesRename(:,2)];
+        %%
+        
+        % find these and rename
+        for k=1:size(allGatesRename,1)
+            oldNameTemp = allGatesRename(k,1);
+            newNameTemp = allGatesRename(k,2);
+            if(oldNameTemp~=newNameTemp)
+                for r=1:size(textCircuitsTemp_mutated,1)
+                    for c=2:size(textCircuitsTemp_mutated,2)
+                        tempCell = cell2mat(textCircuitsTemp_mutated(r,c));
+                        if(ismember(oldNameTemp,tempCell))
+                            tempCell(oldNameTemp==tempCell)=newNameTemp;
+                            textCircuitsTemp_mutated{r,c}=tempCell;
+                        end
+                    end
+                end
+            end
+        end
+    end
+    % final check for backward connections
+    backwardConnections = [];
+    for k=1:size(textCircuitsTemp_mutated,1)
+        outputGateLayer   = floor(cell2mat(textCircuitsTemp_mutated(k,2))./1000);
+        inputGateLayerMax = max(floor(cell2mat(textCircuitsTemp_mutated(k,3))./1000));
+        if(outputGateLayer>inputGateLayerMax)
+            backwardConnections = [backwardConnections true];
+        else
+            backwardConnections = [backwardConnections false];
+        end
+    end
 end
-
 % since names changed, update structure again
 [structureTemp_mutated,allGates] = text2structure(textCircuitsTemp_mutated);
 end
