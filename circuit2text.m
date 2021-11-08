@@ -1,8 +1,9 @@
 function [textCircuits,strAllText] = circuit2text(keepCircuits,keepStructure)
+disp('Converting into text...')
 textCircuits  = {};
 rowCount      = 1;
 for cir=1:size(keepCircuits,2)
-    cir
+    
     tempCircuit   = keepCircuits{cir};
     tempStructure = keepStructure{cir};
     for r=1:size(tempCircuit,1)
@@ -20,7 +21,7 @@ end
 strAllText =[ ];
 textCircuitsIdxs = cell2mat(textCircuits(:,1));
 for cellIdx=1:max(textCircuitsIdxs)
-    cellIdx
+    
     tempIdxs= find(textCircuitsIdxs==cellIdx);
     textCircuitsTemp = textCircuits(tempIdxs,2:3);
 %         strTemp = [];
@@ -33,5 +34,6 @@ for cellIdx=1:max(textCircuitsIdxs)
     strTemp = circuit2str(textCircuitsTemp);
     strAllText{cellIdx,1}=strTemp;
 end
+disp('Done.')
 end
 

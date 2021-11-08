@@ -151,7 +151,8 @@ else
     end
 end
 
-sprintf("Gate Added to layer : %d",add2layer)
+% sprintf("Gate Added to layer : %d",add2layer);
+disp(['Gate Added to layer : ' num2str(add2layer)]);
 
 end
 

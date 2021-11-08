@@ -17,7 +17,10 @@ allConnections1 = cell2mat(textCircuitsTemp(sw1,3));
 allConnections2 = cell2mat(textCircuitsTemp(sw2,3));
 connection2sw1  = datasample(allConnections1,1);
 connection2sw2  = datasample(allConnections2,1);
-sprintf("Switch %d-%d and %d-%d",switchGates(1),connection2sw1,switchGates(2),connection2sw2)
+
+% sprintf("Switch %d-%d and %d-%d",switchGates(1),connection2sw1,switchGates(2),connection2sw2);
+disp(['Switch ' num2str(switchGates(1)) '-' num2str(connection2sw1) ', and ' num2str(switchGates(2)) '-' num2str(connection2sw2)]);
+
 textCircuitsTemp_mutated = textCircuitsTemp;
 textCircuitsTemp_mutated{sw1,3}=[setdiff(allConnections1,connection2sw1),connection2sw2];
 textCircuitsTemp_mutated{sw2,3}=[setdiff(allConnections2,connection2sw2),connection2sw1];

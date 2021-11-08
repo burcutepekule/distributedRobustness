@@ -1,5 +1,4 @@
 function [keepAllOutput,keepOutput] = solveCircuit(varargin)
-
 if(length(varargin)==3)
     numOfInputs    = varargin{1};
     textCircuits   = varargin{2};
@@ -24,9 +23,10 @@ counter          = 1;
 %%
 
 for tempCircuitIdx=tempCircuitIdxVec
-    tempCircuitIdx
+    disp(['Solving for circuit : ' num2str(tempCircuitIdx)])
+    
     for inpIdx=1:size(inpMat,1)
-%         inpIdx
+        %         inpIdx
         
         for i=1:numOfInputs
             inpGateNameTemp = ['i_' num2str(i) '3'];
@@ -130,5 +130,6 @@ for tempCircuitIdx=tempCircuitIdxVec
         
     end
 end
+disp(['Solved for all circuits.'])
 end
 

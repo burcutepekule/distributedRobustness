@@ -1,12 +1,13 @@
 clear all;close all;clc;
-rng(14);
+% rng(14);
+rng(1); %checked until sim=42, no fitness=1.
 numOfInputs    = 3; %number of inputs
 numOfOutputs   = 2; %number of outputs
 numOfGates     = 5; %number of NAND gates
 numOfRuns      = 200; %number of trials 
 numOfCandidateSolutions = 10; %number of candidate solutions
 outputMat = randn([2^numOfInputs,numOfOutputs])>0; %Random Input - Output truthtable
-numSims   = 1000;
+numSims   = 100;
 %% EVOLUTION
 % The random mutations (always respecting the back- ward patterning) can be:
 % (a) elimination of an existing connection, with probability Ec,
@@ -24,13 +25,17 @@ numSims   = 1000;
 fitness(1,:)   = 1-reshape(mean(mean(abs(keepOutput-outputMat),1),2),1,[]);
 fittestCircuitIdx = datasample(find(fitness(1,:)==max(fitness(1,:))),1); % sample one if multiple
 
+fittestStructureInitial     = keepStructure{fittestCircuitIdx};
+fittestTextCircuitInitial   = textCircuits(cell2mat(textCircuits(:,1))==fittestCircuitIdx,:);
+
 keepCircuitsMutated = keepCircuits;
 textCircuitsMutated = textCircuits;
 structuresMutated   = keepStructure;
-
+%%
+maxFitness = max(fitness(1,:),[],2);
 for sim=2:numSims
-
-    
+    if(maxFitness<1)
+    disp(['---------------- at simulation ' num2str(sim-1) ' ----------------'])
     fittestStructure     = structuresMutated{fittestCircuitIdx};
     fittestTextCircuit   = textCircuitsMutated(cell2mat(textCircuitsMutated(:,1))==fittestCircuitIdx,:);
     
@@ -53,29 +58,23 @@ for sim=2:numSims
     
     [~,keepOutput]    = solveCircuit(numOfInputs,textCircuitsMutated,structuresMutated);
     fitness(sim,:)    = 1-reshape(mean(mean(abs(keepOutput-outputMat),1),2),1,[]);
-    fittestCircuitIdx = datasample(find(fitness(sim,:)==max(fitness(sim,:))),1); % sample one if multiple
-    [sim fitness(sim,:)]
+    maxFitness        = max(fitness(sim,:),[],2);
+    fittestCircuitIdx = datasample(find(fitness(sim,:)==maxFitness),1); % sample one if multiple
+    disp(['---------------- simulation ' num2str(sim-1) ' complete, max fitness ' num2str(maxFitness) ' ----------------'])
+    else
+        disp(['---------------- Max fitness of 1 achieved, getting out of here. ----------------'])
+        break;
+    end
 end
-%%
-plot(max(fitness,[],2))
-%%
-% connectionMat    = drawCircuit_text(structureTemp_mutated,textCircuitsTemp_mutated,numOfOutputs);
-% structureTemp_mutated
-% textCircuitsTemp_mutated
-% %%
-% [textCircuitsTemp_mutated2,structureTemp_mutated2] = mutation02(textCircuitsTemp_mutated,structureTemp_mutated);
-% close all;
-% connectionMat    = drawCircuit_text(structureTemp_mutated2,textCircuitsTemp_mutated2,numOfOutputs);
-% 
-% %%
-% 
-
-%% STEP 3 : VISUALIZE
-% idxFound             = 1; %pick a circuit index
-% structureTempPlot    = structuresMutated{idxFound};
-% structureTempSolve   = structuresMutated(idxFound);
-% textCircuitsTemp     = textCircuitsMutated(cell2mat(textCircuitsMutated(:,1))==idxFound,:);
-% close all;
-% connectionMat    = drawCircuit_text(structureTempPlot,textCircuitsTemp,numOfOutputs);
-% [keepAllOutput,keepOutput] = solveCircuit(numOfInputs,textCircuitsTemp,structureTempSolve);
-
+fittestStructureFinal     = structuresMutated{fittestCircuitIdx};
+fittestTextCircuitFinal   = textCircuitsMutated(cell2mat(textCircuitsMutated(:,1))==fittestCircuitIdx,:);
+save('SIM_01.mat')
+%% COMPARE
+clc
+close all;
+figure
+set(gcf, 'Position',  [100, 300, 1500, 400])
+subplot(1,2,1)
+connectionMatInitial = drawCircuit_text(fittestStructureInitial,fittestTextCircuitInitial,numOfOutputs);
+subplot(1,2,2)
+connectionMatFinal   = drawCircuit_text(fittestStructureFinal,fittestTextCircuitFinal,numOfOutputs);

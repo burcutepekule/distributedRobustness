@@ -1,4 +1,8 @@
 function [keepCircuits,keepStructure,keepNumOfLayers,textCircuits,strAllText] = generateRandomCircuits(varargin)
+disp('Circuits are being generated...');
+warning('off')
+
+
 if(length(varargin)==5)
     numOfInputs    = varargin{1};
     numOfOutputs   = varargin{2};
@@ -34,13 +38,13 @@ if(runSims~=0)
     keepStructure      = {};
     circuitIdx         = 1;
     for tempCircuit=1:numOfSolutions
-        tempCircuit
+        
         % Randomly sample number of layers and gates per layer
         if(runSims==1)
             noNegative=0;
             while(noNegative==0)
                 numOfLayers        = randi([1 numOfGatesBetween],1);
-                [tempCircuit numOfLayers]
+%                 [tempCircuit numOfLayers]
                 numOfGatesPerLayer = [];
                 numOfGatesUsed     = 0;
                 if(numOfLayers==1)
@@ -79,7 +83,7 @@ if(runSims~=0)
             numOfGatesPerLayer = [numOfGatesPerLayer;numOfLayers,numOfOutputs];
             
         elseif(runSims==2)
-            numOfLayers
+            
             noNegative=0;
             while(noNegative==0)
                 %             numOfLayers  = randi([1 numOfGatesBetween],1);
@@ -270,7 +274,7 @@ if(runSims~=0)
     %% find the unique structures
     strAll =[ ];
     for cellIdx=1:size(keepCircuits,2)
-        cellIdx
+        
         strTemp = [];
         keepCircuitsTemp = keepCircuits{1,cellIdx};
         for r=1:size(keepCircuitsTemp,1)
@@ -283,11 +287,11 @@ if(runSims~=0)
     end
     %% GET THE UNIQUE STRINGS -> UNIQUE CIRCUIT LABELS
     if(isempty(strAll))
-        disp('No circuits found, try to increase numOfSolutions')
+        disp('No circuits found, try to increase numOfSolutions');
         convert = 0;
     else
         convert = 1;
-        [out,idx] = unique(cellfun(@num2str,strAll,'uni',0));
+        [~,idx] = unique(cellfun(@num2str,strAll,'uni',0));
         % GET THE UNIQUE CIRCUITS, SAVE ORIGINAL MATS FIRST
         keepCircuitsKeep    = keepCircuits;
         keepStructureKeep   = keepStructure;
@@ -295,9 +299,10 @@ if(runSims~=0)
         keepCircuits        = keepCircuitsKeep(idx);
         keepStructure       = keepStructureKeep(idx);
         keepNumOfLayers     = keepNumOfLayersKeep(idx);
+        disp('Circuits generated.');
     end
 else
-    disp('Getting out of this function with no output')
+    disp('Getting out of this function with no output');
     keepCircuits        = [];
     keepStructure       = [];
     keepNumOfLayers     = [];
