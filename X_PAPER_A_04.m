@@ -1,34 +1,4 @@
 clear all;close all;clc;
-%%%%%%%%%% CHECK THIS OUT
-% rng(5);
-% ---------------- at simulation 8 ----------------
-% Switch 13-1011, and 23-1012
-% Gate Added to layer : 3
-% Gate Added to layer : 2
-% Gate Added to layer : 3
-% Gate Added to layer : 1
-% Gate removed : 2020
-% Gate removed : 2020
-% Gate removed : 3020
-% Gate Added to layer : 2
-% Switch 33-2011, and 13-1011
-% Switch 13-1011, and 33-2012
-% Solving for circuit : 1
-% Solving for circuit : 2
-% Solving for circuit : 3
-% Solving for circuit : 4
-% Solving for circuit : 5
-% Solving for circuit : 6
-% Solving for circuit : 7
-% Index exceeds the number of array elements (0).
-% 
-% Error in solveCircuit (line 60)
-%                 inpSym_1   = sym(strcat('i_',sprintf('%d',inpKeep(1))));
-% 
-% Error in X_PAPER_A_04 (line 59)
-%     [~,keepOutput]    = solveCircuit(numOfInputs,textCircuitsMutated,structuresMutated);
-%  
-%%%%%%%%%%%%
 rng(5); %checked until sim=42, no fitness=1.
 numOfInputs    = 3; %number of inputs
 numOfOutputs   = 2; %number of outputs
@@ -115,6 +85,18 @@ connectionMatInitial = drawCircuit_text(fittestStructureInitial,fittestTextCircu
 subplot(1,2,2)
 connectionMatFinal   = drawCircuit_text(fittestStructureFinal,fittestTextCircuitFinal,numOfOutputs);
 %%
-% connectionMatFinal   = drawCircuit_text(tempStructure_orig,tempCircuit_orig,2);
-% figure
-% connectionMat_mutated   = drawCircuit_text(structureTemp_mutated,textCircuitsTemp_mutated,numOfOutputs);
+% connectionMatInitial = drawCircuit_text(fittestStructure,fittestTextCircuit,numOfOutputs);
+% 
+% %%
+
+% close all;
+% textCircuitsMutated_problem = textCircuitsMutated(cell2mat(textCircuitsMutated(:,1))==9,:);
+% [x,i]=sort(cell2mat(textCircuitsMutated_problem(:,2)));
+% textCircuitsMutated_problem = textCircuitsMutated_problem(i,:);
+% [structureMutated_problem,allGates] = text2structure(textCircuitsMutated_problem);
+% 
+% connectionMatProblem        = drawCircuit_text(structureMutated_problem,textCircuitsMutated_problem,2);
+
+% % % connectionMatFinal   = drawCircuit_text(tempStructure_orig,tempCircuit_orig,2);
+% % figure
+% % connectionMat_mutated   = drawCircuit_text(structureTemp_mutated,textCircuitsTemp_mutated,numOfOutputs);

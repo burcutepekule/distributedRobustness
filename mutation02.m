@@ -17,23 +17,25 @@ while(any(backwardConnections) || (isempty(connectedNode2Remove) && condRemove==
     layerMutateAt     = randi(structureTemp(end,1),1); %can't delete input, so all middle layers
     inputNodes2remove = datasample(1000*layerMutateAt+10*(1:structureTemp(layerMutateAt+1,2)),1)+[1 2];
     
-%     layerMutateAt     = 1;
-%     inputNodes2remove = [1011,1012];
-%     
-%     layerMutateAt     = 3;
-%     inputNodes2remove = [3021,3022];
-%     
-%     layerMutateAt     = 2;
-%     inputNodes2remove = [2011,2012];
-%     
-%     layerMutateAt     = 2;
-%     inputNodes2remove = [2021,2022];
-%     
-%     layerMutateAt     = 6;
-%     inputNodes2remove = [6021,6022];
-%     
-%     layerMutateAt     = 5;
-%     inputNodes2remove = [5011,5012];
+    %     layerMutateAt     = 1;
+    %     inputNodes2remove = [1011,1012];
+    %
+    %     layerMutateAt     = 3;
+    %     inputNodes2remove = [3021,3022];
+    %
+    %     layerMutateAt     = 2;
+    %     inputNodes2remove = [2011,2012];
+    %
+    %     layerMutateAt     = 2;
+    %     inputNodes2remove = [2031,2032];
+    %     layerMutateAt     = 6;
+    %     inputNodes2remove = [6021,6022];
+    %
+    %     layerMutateAt     = 5;
+    %     inputNodes2remove = [5011,5012];
+    %
+    %     layerMutateAt     = 15;
+    %     inputNodes2remove = [15011,15012];
     
     outputNode2remove = max(inputNodes2remove)+1;
     
@@ -106,9 +108,12 @@ while(any(backwardConnections) || (isempty(connectedNode2Remove) && condRemove==
             else
                 connectedNode2Remove    = datasample(diffSet,1);
                 connection2Remove_1     = [connectedNode2Remove inputNodes2remove(connectedNodes==connectedNode2Remove)];
-                connection2Remove_2     = [connectedNode2Reconnect inputNodes2remove(connectedNodes==connectedNode2Reconnect)];
+                connection2Remove_2     = [];
+                for kk=1:length(connectedNode2Reconnect)
+                    connection2Remove_2     = [connection2Remove_2; connectedNode2Reconnect(kk) inputNodes2remove(connectedNodes==connectedNode2Reconnect(kk))];
+                end
             end
-            
+            connection2Remove_2 = unique(connection2Remove_2,'rows');
             % is the reconnected node an input node?
             condReconnect  = floor(connectedNode2Reconnect/1000)==0;
             
@@ -236,12 +241,15 @@ while(any(backwardConnections) || (isempty(connectedNode2Remove) && condRemove==
     % delete if any row is empty now
     textCircuitsTemp_mutated(cellfun(@isempty,textCircuitsTemp_mutated(:,3)),:)=[];
     %%
-    % final check for backward connections
+    %sort after renaming
+    [~,i]=sort(cell2mat(textCircuitsTemp_mutated(:,2)));
+    textCircuitsTemp_mutated = textCircuitsTemp_mutated(i,:);
+    %  check for backward connections
     backwardConnections = [];
     for k=1:size(textCircuitsTemp_mutated,1)
         outputGateLayer   = floor(cell2mat(textCircuitsTemp_mutated(k,2))./1000);
-        inputGateLayerMax = max(floor(cell2mat(textCircuitsTemp_mutated(k,3))./1000));
-        if(outputGateLayer>=inputGateLayerMax)
+        inputGateLayers   = floor(cell2mat(textCircuitsTemp_mutated(k,3))./1000);
+        if(any(outputGateLayer>=inputGateLayers))
             backwardConnections = [backwardConnections true];
         else
             backwardConnections = [backwardConnections false];
@@ -263,12 +271,12 @@ while(any(backwardConnections) || (isempty(connectedNode2Remove) && condRemove==
             idxs = find(diffLayers>1);
             for ll=1:length(idxs)
                 idxStart     = idxs(ll);
-                subtractDiff((idxStart+1):end,1) = 1000; 
+                subtractDiff((idxStart+1):end,1) = 1000;
             end
         end
         allGatesUseNew = allGatesUseOld-subtractDiff;
         allGatesRename = [allGatesUseOld allGatesUseNew];
-
+        
         % check whether they start with level 1
         allGates          = allGatesRename(:,2);
         allGatesRenameNew = allGatesRename;
@@ -418,15 +426,15 @@ while(any(backwardConnections) || (isempty(connectedNode2Remove) && condRemove==
         backwardConnections = [];
         for k=1:size(textCircuitsTemp_mutated,1)
             outputGateLayer   = floor(cell2mat(textCircuitsTemp_mutated(k,2))./1000);
-            inputGateLayerMax = max(floor(cell2mat(textCircuitsTemp_mutated(k,3))./1000));
-            if(outputGateLayer>inputGateLayerMax)
+            inputGateLayers   = floor(cell2mat(textCircuitsTemp_mutated(k,3))./1000);
+            if(any(outputGateLayer>=inputGateLayers))
                 backwardConnections = [backwardConnections true];
             else
                 backwardConnections = [backwardConnections false];
             end
         end
     end
-
+    
 end
 % since names changed, update structure again
 [structureTemp_mutated,allGates] = text2structure(textCircuitsTemp_mutated);

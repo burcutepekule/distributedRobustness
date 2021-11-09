@@ -3,11 +3,8 @@ if(length(varargin)==3)
     numOfInputs    = varargin{1};
     textCircuits   = varargin{2};
     keepStructure  = varargin{3};
-    if(iscell(keepStructure))
-            tempCircuitIdxVec = 1:length(keepStructure);
-    else
-            tempCircuitIdxVec = 1:1;
-    end
+    if
+    tempCircuitIdxVec = 1:length(keepStructure);
 elseif(length(varargin)==4)
     numOfInputs    = varargin{1};
     textCircuits   = varargin{2};
@@ -48,12 +45,7 @@ for tempCircuitIdx=tempCircuitIdxVec
         indStart         = find(cell2mat(textCircuits(:,1))==tempCircuitIdx, 1 );
         indEnd           = find(cell2mat(textCircuits(:,1))==tempCircuitIdx, 1, 'last' );
         tempCircuit      = textCircuits(indStart:indEnd,2:3);
-        if(iscell(keepStructure))
-            tempStructure = keepStructure{tempCircuitIdx};
-        else
-            tempStructure = keepStructure;
-        end
-        
+        tempStructure    = keepStructure{tempCircuitIdx};
         eqnKeep          = [];
         outSymKeep       = [];
         for r=2:size(tempStructure,1)
