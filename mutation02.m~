@@ -26,8 +26,8 @@ while(any(backwardConnections) || (isempty(connectedNode2Remove) && condRemove==
 %     layerMutateAt     = 2;
 %     inputNodes2remove = [2011,2012];
 %     
-%     layerMutateAt     = 2;
-%     inputNodes2remove = [2021,2022];
+    layerMutateAt     = 2;
+    inputNodes2remove = [2021,2022];
 %     
 %     layerMutateAt     = 6;
 %     inputNodes2remove = [6021,6022];
@@ -85,17 +85,12 @@ while(any(backwardConnections) || (isempty(connectedNode2Remove) && condRemove==
         if(length(unique(connectedNodes))>1)
             
             if(~isempty(diffNodes2Connect))
-                if(~isempty(inputNodes2reconnect))
-                    connectedNode2Reconnect = datasample(diffNodes2Connect,length(inputNodes2reconnect),'Replace',true);
-                else % means it's connected to an output
-                    connectedNode2Reconnect = datasample(diffNodes2Connect,1);
+                if(~isempty(inputNodes2reconnect)) 
+                else% means it's connected to an output
+                                    connectedNode2Reconnect = datasample(diffNodes2Connect,length(inputNodes2reconnect),'Replace',true);
                 end
             else
-                if(~isempty(inputNodes2reconnect))
-                    connectedNode2Reconnect = datasample(connectedNodes,length(inputNodes2reconnect),'Replace',true);
-                else % means it's connected to an output
-                    connectedNode2Reconnect = datasample(connectedNodes,1);
-                end
+                connectedNode2Reconnect = datasample(connectedNodes,length(inputNodes2reconnect),'Replace',true);
             end
             
             diffSet = setdiff(connectedNodes,connectedNode2Reconnect);
@@ -122,7 +117,7 @@ while(any(backwardConnections) || (isempty(connectedNode2Remove) && condRemove==
             if(isempty(reconnect2)) % means it's a terminal node connected to the output
                 connectionsOfInpNode = [];
                 for cc=1:length(connectedNode2Reconnect)
-                    connectionsOfInpNode = [connectionsOfInpNode cell2mat(textCircuitsTemp(cell2mat(textCircuitsTemp(:,2))==connectedNode2Reconnect(cc),3))];
+                    connectionsOfInpNode = [connectionsOfInpNode cell2mat(textCircuitsTemp(cell2mat(textCircuitsTemp(:,2))==connectedNode2Reconnect(ll),3))];
                 end
                 % Condition # 2 : does any of these ouputs would cause backward feedback if
                 % connected to the output?
@@ -269,6 +264,27 @@ while(any(backwardConnections) || (isempty(connectedNode2Remove) && condRemove==
         allGatesUseNew = allGatesUseOld-subtractDiff;
         allGatesRename = [allGatesUseOld allGatesUseNew];
 
+        % then check whether they start with gate index 1
+        allGates          = allGatesRename(:,2);
+        allGatesRenameNew = allGatesRename;
+        allGatesUse   = allGates(floor(allGates./1000)>0);
+        allGatesUse10 = floor(allGatesUse/10);
+        indOfLayers   = floor(allGatesUse10/100);
+        allGatesRename= [];
+        for k=unique(indOfLayers)'
+            allGatesUseOld    = allGatesUse(indOfLayers==k);
+            allGatesUse10Temp = allGatesUse10(indOfLayers==k);
+            allGatesUse10TempMod100 = mod(allGatesUse10Temp,100);
+            if(min(unique(allGatesUse10TempMod100))>1)
+                diffSubt       = min(unique(allGatesUse10TempMod100))-1;
+                allGatesUseNew = allGatesUseOld-10*diffSubt;
+            else
+                allGatesUseNew = allGatesUseOld;
+            end
+            allGatesRename = [allGatesRename; allGatesUseOld allGatesUseNew];
+        end
+        % combine both
+        allGatesRename = [allGatesRenameNew(:,1) allGatesRename(:,2)];
         % check whether they start with level 1
         allGates          = allGatesRename(:,2);
         allGatesRenameNew = allGatesRename;
@@ -295,7 +311,6 @@ while(any(backwardConnections) || (isempty(connectedNode2Remove) && condRemove==
         end
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         % then check the differential corectness for gate indexes
-        [structureTemp_mutated,allGates] = text2structure(textCircuitsTemp_mutated);
         allGatesUse   = allGates(floor(allGates./1000)>0);
         allGatesUse10 = floor(allGatesUse/10);
         indOfLayers   = floor(allGatesUse10/100);

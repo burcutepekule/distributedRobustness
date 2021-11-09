@@ -23,6 +23,7 @@ counter          = 1;
 %%
 
 for tempCircuitIdx=tempCircuitIdxVec
+% for tempCircuitIdx=7
     disp(['Solving for circuit : ' num2str(tempCircuitIdx)])
     
     for inpIdx=1:size(inpMat,1)
