@@ -1,5 +1,5 @@
 clear all;close all;clc;
-rng(5); %checked until sim=42, no fitness=1.
+rng(14); 
 numOfInputs    = 3; %number of inputs
 numOfOutputs   = 2; %number of outputs
 numOfGates     = 5; %number of NAND gates
@@ -74,7 +74,7 @@ for sim=2:numSims
 end
 fittestStructureFinal     = structuresMutated{fittestCircuitIdx};
 fittestTextCircuitFinal   = textCircuitsMutated(cell2mat(textCircuitsMutated(:,1))==fittestCircuitIdx,:);
-save('SIM_01.mat')
+save('SIM_RNG_14.mat')
 %% COMPARE
 clc
 close all;
