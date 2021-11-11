@@ -57,7 +57,7 @@ for sim=2:numSims
     for mut=1:numOfCandidateSolutions-1
         [textCircuitsTemp_mutated,structureTemp_mutated] = mutateCircuit(fittestTextCircuit,fittestStructure,mutationIndexVec(mut));
         indexColumnCircuit      = cell2mat(textCircuitsTemp_mutated(:,1));
-        textCircuitsTemp_mutated(:,1) = num2cell((mut+1)*ones(size(indexColumnCircuit))); % index as 1
+        textCircuitsTemp_mutated(:,1) = num2cell((mut+1)*ones(size(indexColumnCircuit))); % indexing
         textCircuitsMutated        = [textCircuitsMutated;textCircuitsTemp_mutated];
         structuresMutated{mut+1}   = structureTemp_mutated;
     end
@@ -74,7 +74,7 @@ for sim=2:numSims
 end
 fittestStructureFinal     = structuresMutated{fittestCircuitIdx};
 fittestTextCircuitFinal   = textCircuitsMutated(cell2mat(textCircuitsMutated(:,1))==fittestCircuitIdx,:);
-save('SIM_RNG_14.mat')
+save('SIM_RNG_14_FT.mat')
 %% COMPARE
 clc
 close all;
