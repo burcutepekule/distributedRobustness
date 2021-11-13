@@ -1,4 +1,5 @@
 clear all;close all;clc;
+parpool('local')
 rng(1);
 numOfInputs    = 2; %number of inputs
 numOfOutputs   = 2; %number of outputs
@@ -18,18 +19,19 @@ numSims   = 1000;
 % prob of mutation #1 0.8
 % prob of mutation #2 0.3
 % prob of mutation #3 0.6
-
+sim = 1;
 [keepCircuits,keepStructure,keepNumOfLayers,textCircuits,strAllText] = generateRandomCircuits(numOfInputs,numOfOutputs,numOfGates,numOfRuns,numOfCandidateSolutions);
 [fitness,faultTolerance]    = calculateFitnessAndFaultTolerance(textCircuits,keepStructure,numOfInputs,outputMat,0);
-fittestCircuitIdx           = datasample(find(fitness(1,:)==max(fitness(1,:))),1); % sample one if multiple
+fittestCircuitIdx           = datasample(find(fitness(sim,:)==max(fitness(sim,:))),1); % sample one if multiple
 fittestStructureInitial     = keepStructure{fittestCircuitIdx};
 fittestTextCircuitInitial   = textCircuits(cell2mat(textCircuits(:,1))==fittestCircuitIdx,:);
 
 keepCircuitsMutated = keepCircuits;
 textCircuitsMutated = textCircuits;
 structuresMutated   = keepStructure;
-maxFitness          = max(fitness(1,:),[],2);
+maxFitness          = max(fitness(sim,:),[],2);
 disp(['---------------- initialization complete, max fitness ' num2str(maxFitness) ' with index ' num2str(fittestCircuitIdx) ' ----------------'])
+save(['BEFORE_TOL_FITTEST_CIRCUIT_' num2str(sim) '.mat'])
 
 sim = 2;
 while(maxFitness<1)
@@ -59,6 +61,7 @@ while(maxFitness<1)
     maxFitness        = max(fitness(sim,:),[],2);
     fittestCircuitIdx = datasample(find(fitness(sim,:)==maxFitness),1); % sample one if multiple
     disp(['---------------- simulation ' num2str(sim-1) ' complete, max fitness ' num2str(maxFitness) ' with index ' num2str(fittestCircuitIdx) ' ----------------'])
+    save(['BEFORE_TOL_FITTEST_CIRCUIT_' num2str(sim) '.mat'])
     sim = sim + 1;
 end
 
@@ -66,13 +69,15 @@ save('BEFORE_TOL_FITTEST_CIRCUIT.mat','fittestTextCircuit','fittestStructure')
 save('BEFORE_TOL_ALL.mat')
 disp(['---------------- Max fitness of 1 achieved, now check fault tolerance convergence ----------------'])
 %%
+clear all;close all;clc;
 load('BEFORE_TOL_ALL.mat')
 sim
 sumDiffTolerance    = 1e6; %arbitrarily large number
-tolTolerance        = 0.8; %?
+tolMeanTolerance    = 0;
+tolTolerance        = 0.75; %?
 tolLength           = 4;
 keepFaultTolerance  = [];
-while(sumDiffTolerance>0 && tolTolerance>=tolTolerance)
+while(sumDiffTolerance>0 || tolMeanTolerance<tolTolerance)
     disp(['---------------- at simulation ' num2str(sim-1) ' ----------------'])
     fittestStructure     = structuresMutated{fittestCircuitIdx};
     fittestTextCircuit   = textCircuitsMutated(cell2mat(textCircuitsMutated(:,1))==fittestCircuitIdx,:);
@@ -98,20 +103,33 @@ while(sumDiffTolerance>0 && tolTolerance>=tolTolerance)
     
     fitness(sim,:)        = fitnessTemp;
     faultTolerance(sim,:) = faultToleranceTemp;
-    maxFitness            = max(fitness(sim,:),[],2);
-    fittestCircuitIdx     = datasample(find(fitness(sim,:)==maxFitness),1); % sample one if multiple
+    fittestIdxs           = find(fitness(sim,:)==1); %we know that it is 1 now
+    maxTolerance          = max(faultTolerance(sim,fittestIdxs),[],2); %among the fittest
+    tolerantIdxs          = find(faultTolerance(sim,:)==maxTolerance);
+    intersectIdxs         = intersect(fittestIdxs,tolerantIdxs);
+    if(~isempty(intersectIdxs))
+        disp(['----------------  Intersection between the fittest and the most tolerant, sampling from the fittest AND the most tolerant  ----------------'])
+        fittestCircuitIdx     = datasample(intersectIdxs,1); 
+    else
+        disp(['----------------  No intersection between the fittest and the most tolerant, sampling from the fittest  ----------------'])
+        fittestCircuitIdx     = datasample(fittestIdxs,1); 
+    end
+    
     keepFaultTolerance    = [keepFaultTolerance faultTolerance(sim,fittestCircuitIdx)];
-    keepFaultTolerance
+    disp(['---------------- simulation ' num2str(sim-1) ' complete, max fitness ' num2str(maxFitness) ' with index ' num2str(fittestCircuitIdx) ', with fault tolerance ' num2str(faultTolerance(sim,fittestCircuitIdx)) ' ----------------'])
     if(length(keepFaultTolerance)>tolLength) %get the diff of last tolerance values
         faultToleranceDiff = diff(keepFaultTolerance((end-tolLength):end));
         sumDiffTolerance   = sum(abs(faultToleranceDiff));
-        tolTolerance       = mean(keepFaultTolerance((end-tolLength):end)); 
+        tolMeanTolerance   = mean(keepFaultTolerance((end-tolLength):end)); 
     end
     sim = sim + 1;
+    save(['AFTER_TOL_FITTEST_CIRCUIT_' num2str(sim) '.mat'])
+
 end
 
 disp(['---------------- Tolerance converged, getting out of here. ----------------'])
 fittestStructureFinal     = structuresMutated{fittestCircuitIdx};
 fittestTextCircuitFinal   = textCircuitsMutated(cell2mat(textCircuitsMutated(:,1))==fittestCircuitIdx,:);
 save('AFTER_TOL_FITTEST_CIRCUIT.mat','fittestTextCircuit','fittestStructure')
+save('AFTER_TOL_ALL.mat')
 

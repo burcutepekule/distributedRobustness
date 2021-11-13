@@ -30,7 +30,7 @@ textCircuitsMutated = textCircuits;
 structuresMutated   = keepStructure;
 maxFitness          = max(fitness(1,:),[],2);
 disp(['---------------- initialization complete, max fitness ' num2str(maxFitness) ' with index ' num2str(fittestCircuitIdx) ' ----------------'])
-%%
+
 sim = 2;
 while(maxFitness<1)
     disp(['---------------- at simulation ' num2str(sim-1) ' ----------------'])
@@ -61,18 +61,19 @@ while(maxFitness<1)
     disp(['---------------- simulation ' num2str(sim-1) ' complete, max fitness ' num2str(maxFitness) ' with index ' num2str(fittestCircuitIdx) ' ----------------'])
     sim = sim + 1;
 end
-%%
+
 save('BEFORE_TOL_FITTEST_CIRCUIT.mat','fittestTextCircuit','fittestStructure')
 save('BEFORE_TOL_ALL.mat')
 disp(['---------------- Max fitness of 1 achieved, now check fault tolerance convergence ----------------'])
 %%
 load('BEFORE_TOL_ALL.mat')
 sim
-%%
 sumDiffTolerance    = 1e6; %arbitrarily large number
+tolMeanTolerance    = 1e6;
+tolTolerance        = 0.8; %?
 tolLength           = 4;
 keepFaultTolerance  = [];
-while(sumDiffTolerance>0)
+while(sumDiffTolerance>0 && tolTolerance<tolMeanTolerance)
     disp(['---------------- at simulation ' num2str(sim-1) ' ----------------'])
     fittestStructure     = structuresMutated{fittestCircuitIdx};
     fittestTextCircuit   = textCircuitsMutated(cell2mat(textCircuitsMutated(:,1))==fittestCircuitIdx,:);
@@ -99,12 +100,25 @@ while(sumDiffTolerance>0)
     fitness(sim,:)        = fitnessTemp;
     faultTolerance(sim,:) = faultToleranceTemp;
     maxFitness            = max(fitness(sim,:),[],2);
-    fittestCircuitIdx     = datasample(find(fitness(sim,:)==maxFitness),1); % sample one if multiple
+    maxTolerance          = max(faultTolerance(sim,:),[],2);
+    fittestIdxs           = find(fitness(sim,:)==maxFitness);
+    tolerantIdxs          = find(faultTolerance(sim,:)==maxTolerance);
+    intersectIdxs         = intersect(fittestIdxs,tolerantIdxs);
+    fittestCircuitIdx     = datasample(,1); % sample one if multiple
+    if(~isempty(intersectIdxs))
+        disp(['----------------  no intersection between the fittest and the most tolerant, sampling from the fittest  ----------------'])
+
+else
+        disp(['----------------  no intersection between the fittest and the most tolerant, sampling from the fittest  ----------------'])
+        fittestCircuitIdx     = datasample(fittestIdxs,1); % sample one if multiple
+    end
+    
     keepFaultTolerance    = [keepFaultTolerance faultTolerance(sim,fittestCircuitIdx)];
-    keepFaultTolerance
+    disp(['---------------- simulation ' num2str(sim-1) ' complete, max fitness ' num2str(maxFitness) ' with index ' num2str(fittestCircuitIdx) ', with fault tolerance ' num2str(faultTolerance(sim,fittestCircuitIdx)) ' ----------------'])
     if(length(keepFaultTolerance)>tolLength) %get the diff of last tolerance values
         faultToleranceDiff = diff(keepFaultTolerance((end-tolLength):end));
         sumDiffTolerance   = sum(abs(faultToleranceDiff));
+        tolMeanTolerance   = mean(keepFaultTolerance((end-tolLength):end)); 
     end
     sim = sim + 1;
 end
