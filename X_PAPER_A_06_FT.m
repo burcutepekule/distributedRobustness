@@ -120,11 +120,10 @@ while(sumDiffTolerance>0 || tolMeanTolerance<tolTolerance)
     if(length(keepFaultTolerance)>tolLength) %get the diff of last tolerance values
         faultToleranceDiff = diff(keepFaultTolerance((end-tolLength):end));
         sumDiffTolerance   = sum(abs(faultToleranceDiff));
-        tolMeanTolerance   = mean(keepFaultTolerance((end-tolLength):end)); 
+        tolMeanTolerance   = mean(keepFaultTolerance((end-tolLength):end));
     end
-    sim = sim + 1;
     save(['AFTER_TOL_FITTEST_CIRCUIT_' num2str(sim) '.mat'])
-
+    sim = sim + 1;
 end
 
 disp(['---------------- Tolerance converged, getting out of here. ----------------'])

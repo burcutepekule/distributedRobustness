@@ -1,4 +1,4 @@
-function [connectionMat_text] = drawCircuit_text(structureTemp,textCircuitsTemp,numOfOutputs)
+function [connectionMat_text] = drawCircuit_text(structureTemp,textCircuitsTemp,numOfOutputs,textOn)
 ymax = 10+size(textCircuitsTemp,1);
 xmax = 10+size(textCircuitsTemp,1);
 ymin = 0;
@@ -74,7 +74,7 @@ for k=1:size(textCircuitsTemp,1)
             connectionMat_x = [connectionMat_x; outNANDIdxs(3) inpNANDIdx(3)];
             connectionMat_y = [connectionMat_y; outNANDIdxs(4) inpNANDIdx(4)];
             connectionMat_text = [connectionMat_text; string(connectFrom) string(connectTo(j))];
-
+            
         end
     end
 end
@@ -93,10 +93,12 @@ end
 
 cmap = lines(size(connectionMat_x,1));
 for k=1:size(connectionMat_x,1)
-%     line(connectionMat_x(k,:),connectionMat_y(k,:),'Color',cmap(k,:))
+    %     line(connectionMat_x(k,:),connectionMat_y(k,:),'Color',cmap(k,:))
     line(connectionMat_x(k,:),connectionMat_y(k,:),'Color','k')
-    text(connectionMat_x(k,1),connectionMat_y(k,1),connectionMat_text(k,1),'FontWeight','bold')
-    text(connectionMat_x(k,2),connectionMat_y(k,2),connectionMat_text(k,2),'FontWeight','bold')
+    if(textOn==1)
+        text(connectionMat_x(k,1),connectionMat_y(k,1),connectionMat_text(k,1),'FontWeight','bold')
+        text(connectionMat_x(k,2),connectionMat_y(k,2),connectionMat_text(k,2),'FontWeight','bold')
+    end
 end
 axis tight
 end
