@@ -90,8 +90,6 @@ for k=outletGatesNAND'
     connectionMat_text = [connectionMat_text; string(connectFrom) ['O_' num2str(k)]];
 end
 
-
-cmap = lines(size(connectionMat_x,1));
 for k=1:size(connectionMat_x,1)
     %     line(connectionMat_x(k,:),connectionMat_y(k,:),'Color',cmap(k,:))
     line(connectionMat_x(k,:),connectionMat_y(k,:),'Color','k')

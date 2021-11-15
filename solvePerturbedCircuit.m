@@ -1,4 +1,4 @@
-function [keepOutput] = solvePerturbedCircuit(numOfInputs,tempCircuitIdx,tempCircuit,tempStructure,outputGate2Perturb)
+function [keepOutput,keepAllOutput] = solvePerturbedCircuit(numOfInputs,tempCircuitIdx,tempCircuit,tempStructure,outputGate2Perturb)
 
 inpMat=[];
 for i=0:(2^numOfInputs-1)
