@@ -1,9 +1,9 @@
 clear all;close all;clc;
 % for local
 % parpool('local')
-availableGPUs = gpuDeviceCount("available");
-disp(['---------------- Number of available GPUs : ' num2str(availableGPUs) ' ----------------'])
-parpool('local',availableGPUs);
+% availableGPUs = gpuDeviceCount("available");
+% disp(['---------------- Number of available GPUs : ' num2str(availableGPUs) ' ----------------'])
+% parpool('local',availableGPUs);
 
 for seed = 2:100
     clearvars -except availableGPUs seed

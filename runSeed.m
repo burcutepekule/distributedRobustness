@@ -1,7 +1,10 @@
 function [] = runSeed(seed)
-
-clearvars -except availableGPUs seed
+% availableGPUs = gpuDeviceCount("available");
+% disp(['---------------- Number of available GPUs : ' num2str(availableGPUs) ' ----------------'])
+% parpool('local',availableGPUs);
+parpool('local')
 rng(seed);
+clearvars -except availableGPUs seed
 disp(['---------------- Simulating seed ' num2str(seed) ' ----------------'])
 numOfInputs    = 2; %number of inputs
 numOfOutputs   = 2; %number of outputs
