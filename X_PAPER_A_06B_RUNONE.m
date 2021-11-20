@@ -1,11 +1,11 @@
 clear all;close all;clc;
 % for local
-parpool('local')
+% parpool('local')
 % availableGPUs = gpuDeviceCount("available");
 % disp(['---------------- Number of available GPUs : ' num2str(availableGPUs) ' ----------------'])
 % parpool('local',availableGPUs);
 
-seed = 3;
+seed = 15;
 clearvars -except availableGPUs seed
 rng(seed);
 disp(['---------------- Simulating seed ' num2str(seed) ' ----------------'])
@@ -81,7 +81,7 @@ load(['BEFORE_TOL_ALL_SEED_' num2str(seed) '.mat'])
 sim
 sumDiffTolerance    = 1e6; %arbitrarily large number
 tolMeanTolerance    = 0;
-tolTolerance        = 0.75; %?
+tolTolerance        = 0.85; %?
 tolLength           = 4;
 keepFaultTolerance  = [];
 while(sumDiffTolerance>0 || tolMeanTolerance<tolTolerance)
@@ -99,6 +99,7 @@ while(sumDiffTolerance>0 || tolMeanTolerance<tolTolerance)
     
     mutationIndexVec = datasample(1:3,numOfCandidateSolutions-1,'Weights',[0.8 0.3 0.6],'Replace',true);
     for mut=1:numOfCandidateSolutions-1
+        drawCircuit_text(fittestStructure,fittestTextCircuit,numOfOutputs,0)
         [textCircuitsTemp_mutated,structureTemp_mutated] = mutateCircuit(fittestTextCircuit,fittestStructure,mutationIndexVec(mut));
         indexColumnCircuit            = cell2mat(textCircuitsTemp_mutated(:,1));
         textCircuitsTemp_mutated(:,1) = num2cell((mut+1)*ones(size(indexColumnCircuit))); %indexing
@@ -137,4 +138,4 @@ disp(['---------------- seed ' num2str(seed) ', Tolerance converged, getting out
 fittestStructureFinal     = structuresMutated{fittestCircuitIdx};
 fittestTextCircuitFinal   = textCircuitsMutated(cell2mat(textCircuitsMutated(:,1))==fittestCircuitIdx,:);
 save(['AFTER_TOL_ALL_SEED_' num2str(seed) '.mat'])
-
+delete(gcp('nocreate'))

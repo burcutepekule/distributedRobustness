@@ -1,23 +1,26 @@
 clear all;close all;clc;
 % parpool('local')
-seed             = 2;
-fileinfoBefore   = dir(['BEFORE_TOL_FITTEST_CIRCUIT_SEED_' num2str(seed) '_*.mat']);
-fileinfoAfter    = dir(['AFTER_TOL_FITTEST_CIRCUIT_SEED_' num2str(seed) '_*.mat']);
+seed             = 93;
+fileinfoBefore   = dir(['./cluster/BEFORE_TOL_FITTEST_CIRCUIT_SEED_' num2str(seed) '_*.mat']);
+fileinfoAfter    = dir(['./cluster/AFTER_TOL_FITTEST_CIRCUIT_SEED_' num2str(seed) '_*.mat']);
 totalNum         = size(fileinfoBefore,1)+size(fileinfoAfter,1);
 lastIdx          = size(fileinfoBefore,1);
 keepData         = [];
 plotOn           = 0;
-for simIdx=1:totalNum
+% for simIdx=1:totalNum
+for simIdx=totalNum
     if(simIdx <= size(fileinfoBefore,1)) 
-        load(['BEFORE_TOL_FITTEST_CIRCUIT_SEED_' num2str(seed) '_' num2str(simIdx) '.mat']);
+        load(['./cluster/BEFORE_TOL_FITTEST_CIRCUIT_SEED_' num2str(seed) '_' num2str(simIdx) '.mat']);
     else
-        load(['AFTER_TOL_FITTEST_CIRCUIT_SEED_' num2str(seed) '_' num2str(simIdx) '.mat']);
+        load(['./cluster/AFTER_TOL_FITTEST_CIRCUIT_SEED_' num2str(seed) '_' num2str(simIdx) '.mat']);
     end
     fittestStructure             = structuresMutated{fittestCircuitIdx};
     fittestTextCircuit           = textCircuitsMutated(cell2mat(textCircuitsMutated(:,1))==fittestCircuitIdx,:);
-    [keepOutput,keepAllOutput]   = solvePerturbedCircuit(numOfInputs,1,fittestTextCircuit(:,2:3),fittestStructure,0);
-    [degeneracy,degeneracyUB,redundancy,complexity,circuitSize] = calculateDegeneracy(keepOutput,keepAllOutput,numOfInputs,numOfOutputs,fittestStructure);
+%     drawCircuit_text(fittestStructure,fittestTextCircuit,numOfOutputs,1)
     
+    [keepOutput,keepAllOutput]   = solvePerturbedCircuit(numOfInputs,1,fittestTextCircuit(:,2:3),fittestStructure,0);
+    [degeneracy,degeneracy2,degeneracyUB,redundancy,complexity,circuitSize] = calculateDegeneracy(keepOutput,keepAllOutput,numOfInputs,numOfOutputs,fittestStructure);
+
     if(~isempty(faultTolerance))
         fitness        = 1;
         faultTolerance = faultTolerance(simIdx,fittestCircuitIdx);
@@ -26,7 +29,7 @@ for simIdx=1:totalNum
         faultTolerance = 0;
     end
     keepData = [keepData; simIdx circuitSize fitness ...
-        faultTolerance degeneracy degeneracyUB ...
+        faultTolerance degeneracy degeneracy2 degeneracyUB ...
         redundancy complexity]
     
     %     if(plotOn==1)
@@ -68,9 +71,9 @@ for simIdx=1:totalNum
     %             imwrite(imind,cm,filename,'gif','DelayTime',0.2,'WriteMode','append');
     %         end
     %     end
-    save(['RDC_' num2str(simIdx) '_SEED_' num2str(seed) '.mat']) %REDUNDANCY, DEGENERACY, COMPLEXITY
+%     save(['RDC_' num2str(simIdx) '_SEED_' num2str(seed) '.mat']) %REDUNDANCY, DEGENERACY, COMPLEXITY
 end
- save(['RDC_ALL_SEED_' num2str(seed) '.mat']) %REDUNDANCY, DEGENERACY, COMPLEXITY
+%  save(['RDC_ALL_SEED_' num2str(seed) '.mat']) %REDUNDANCY, DEGENERACY, COMPLEXITY
 %%
 
 % for k = 1:113

@@ -2,9 +2,9 @@ function [] = runSeed(seed)
 % availableGPUs = gpuDeviceCount("available");
 % disp(['---------------- Number of available GPUs : ' num2str(availableGPUs) ' ----------------'])
 % parpool('local',availableGPUs);
-parpool('local')
+% parpool('local')
 rng(seed);
-clearvars -except availableGPUs seed
+clearvars -except seed
 disp(['---------------- Simulating seed ' num2str(seed) ' ----------------'])
 numOfInputs    = 2; %number of inputs
 numOfOutputs   = 2; %number of outputs
@@ -73,12 +73,12 @@ end
 save(['BEFORE_TOL_ALL_SEED_' num2str(seed) '.mat'])
 disp(['---------------- seed ' num2str(seed) ', max fitness of 1 achieved, now check fault tolerance convergence ----------------'])
 %%
-clearvars -except availableGPUs seed
-load(['BEFORE_TOL_ALL_SEED_' num2str(seed) '.mat'])
-sim
+% clearvars -except seed
+% load(['BEFORE_TOL_ALL_SEED_' num2str(seed) '.mat'])
+% sim
 sumDiffTolerance    = 1e6; %arbitrarily large number
 tolMeanTolerance    = 0;
-tolTolerance        = 0.75; %?
+tolTolerance        = 0.60; %?
 tolLength           = 4;
 keepFaultTolerance  = [];
 while(sumDiffTolerance>0 || tolMeanTolerance<tolTolerance)

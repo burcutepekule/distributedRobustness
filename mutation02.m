@@ -23,8 +23,8 @@ while(any(backwardConnections) || (isempty(connectedNode2Remove) && condRemove==
     %     layerMutateAt     = 3;
     %     inputNodes2remove = [3021,3022];
     %
-    %     layerMutateAt     = 2;
-    %     inputNodes2remove = [2011,2012];
+%     layerMutateAt     = 2;
+%     inputNodes2remove = [2021,2022];
     %
     %     layerMutateAt     = 2;
     %     inputNodes2remove = [2031,2032];
@@ -136,7 +136,7 @@ while(any(backwardConnections) || (isempty(connectedNode2Remove) && condRemove==
                 
                 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
                 for o=1:length(outputsOfInpNode)
-                    connectionsOfOutNode2bRemoved = [connectionsOfOutNode2bRemoved;cell2mat(textCircuitsTemp(cell2mat(textCircuitsTemp(:,2))==outputsOfInpNode(o),3))];
+                    connectionsOfOutNode2bRemoved = [connectionsOfOutNode2bRemoved cell2mat(textCircuitsTemp(cell2mat(textCircuitsTemp(:,2))==outputsOfInpNode(o),3))];
                 end
                 if(~isempty(connectionsOfOutNode2bRemoved))
                     cond_4 = min(floor(connectionsOfOutNode2bRemoved./1000)) <= structureTemp(end,1);
