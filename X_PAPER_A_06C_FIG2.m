@@ -40,4 +40,4 @@ structureTemp    = keepStructure{idxFound};
 textCircuitsTemp = textCircuits(cell2mat(textCircuits(:,1))==idxFound,:);
 % drawCircuit(structureTemp,textCircuitsTemp,numOfOutputs)
 drawCircuit_text(structureTemp,textCircuitsTemp,numOfOutputs,1)
-[degeneracy,degeneracyUB,redundancy,complexity,circuitSize]  = calculateDegeneracy(keepOutput,keepAllOutput,numOfInputs,numOfOutputs,structureTemp);
+[degeneracy,degeneracyUB,redundancy,complexity,circuitSize]  = calculateDegeneracyOption(keepOutput,keepAllOutput,structureTemp,0);

@@ -33,7 +33,8 @@ else
 end
 
 if(runSims~=0)
-    numOfGatesBetween  = numOfGates-numOfOutputs;
+%     numOfGatesBetween  = numOfGates-numOfOutputs;
+    numOfGatesBetween  = numOfGates;
     keepCircuits       = {};
     keepStructure      = {};
     circuitIdx         = 1;
