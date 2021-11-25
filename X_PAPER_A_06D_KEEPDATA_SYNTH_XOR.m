@@ -11,6 +11,7 @@ figure
 drawCircuit_text(fittestStructure_1,fittestTextCircuit_1,numOfOutputs,1)
 [keepOutput_1,keepAllOutput_1] = solvePerturbedCircuit(numOfInputs,1,fittestTextCircuit_1(:,2:3),fittestStructure_1,0);
 checkStatisticalIndependence(keepAllOutput_1,fittestStructure_1)
+[degeneracy_1,degeneracy2_1,degeneracyUB_1,redundancy_1,complexity_1,circuitSize_1] = calculateDegeneracy(keepOutput_1,keepAllOutput_1,fittestStructure_1);
 
 %%
 fittestTextCircuit = [];
@@ -21,6 +22,7 @@ figure
 drawCircuit_text(fittestStructure_2,fittestTextCircuit_2,numOfOutputs,1)
 [keepOutput_2,keepAllOutput_2] = solvePerturbedCircuit(numOfInputs,1,fittestTextCircuit_2(:,2:3),fittestStructure_2,0);
 checkStatisticalIndependence(keepAllOutput_2,fittestStructure_2)
+[degeneracy_2,degeneracy2_2,degeneracyUB_2,redundancy_2,complexity_2,circuitSize_2] = calculateDegeneracy(keepOutput_2,keepAllOutput_2,fittestStructure_2);
 
 %%
 clc
@@ -109,10 +111,6 @@ double(subs(I_X_ALL_O_3013))
 double(subs(R))
 double(subs(Ro))
 double(subs(Rio))
-
-%%
-[degeneracy_1,degeneracy2_1,degeneracyUB_1,redundancy_1,complexity_1,circuitSize_1] = calculateDegeneracyOption(keepOutput_1,keepAllOutput_1,numOfInputs,numOfOutputs,fittestStructure_1,0);
-[degeneracy_2,degeneracy2_2,degeneracyUB_2,redundancy_2,complexity_2,circuitSize_2] = calculateDegeneracyOption(keepOutput_2,keepAllOutput_2,numOfInputs,numOfOutputs,fittestStructure_2,0);
 
 %%
 

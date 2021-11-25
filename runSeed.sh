@@ -5,7 +5,7 @@
 #SBATCH --cpus-per-task=4
 #SBATCH --mem-per-cpu=4G
 #SBATCH --output=OUT_DR_%A_%a_%a.out
-#SBATCH --array=0-499
+#SBATCH --array=0-99
 
 module load anaconda3 
 eval "$(conda shell.bash hook)"
@@ -14,7 +14,7 @@ module load matlab
 
 
 seedMin=0
-seedMax=499
+seedMax=99
 stepSeed=1
 
 seedArr=()

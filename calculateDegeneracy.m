@@ -1,27 +1,28 @@
-function [degeneracy,degeneracy2,degeneracyUB,redundancy,complexity,circuitSize] = calculateDegeneracy(keepOutput,keepAllOutput,numOfInputs,numOfOutputs,fittestStructure)
-% numOfGates    = sum(fittestStructure(2:end,2));
+function [degeneracy,degeneracy2,degeneracyUB,redundancy,complexity,circuitSize] = calculateDegeneracy(keepOutput,keepAllOutput,fittestStructure)
+numOfInputs   = fittestStructure(1,2);
 numOfGates    = sum(fittestStructure(2:end-1,2));
-circuitSize   = numOfGates;
+numOfOutputs  = fittestStructure(end,2);
 outputMat     = keepAllOutput(:,2:4);
 C             = outputMat(:,2);
 Cj            = cat(1, C{:});
 allGates      = Cj(1:(numOfInputs+numOfGates+numOfOutputs));
 inputGates    = allGates(1:numOfInputs);
 outputGates   = allGates(end-numOfOutputs+1:end);
-% middleGates   = setdiff(allGates,[outputGates;inputGates]);
-middleGates   = setdiff(allGates,[inputGates]);
+middleGates   = setdiff(allGates,[outputGates;inputGates]);
+circuitSize        = length(middleGates);
 degeneracyVecMean  = [];
 degeneracyVec2Mean = [];
 IallVecMean        = [];
 IsubsubHatVecMean  = [];
+IsubVecKeep        = [];
 for k=1:length(middleGates)
     disp(['Calculating for ' num2str(k) '-gate subcircuits...'])
     gates2use     = nchoosek(middleGates,k);
     degeneracyVec = [];
     degeneracyVec2= [];
     IallVec       = [];
-    IsubVec       = [];
     IsubsubHatVec = [];
+    IsubVec       = [];
     for i=1:size(gates2use,1)
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         if(size(gates2use,2)>1)
@@ -60,47 +61,51 @@ for k=1:length(middleGates)
         pJointSubHatDist  = unique(pJointSubHat,'rows');
         
         
-        HSubOutput    = -sum(pSubOutputDist(:,end).*log(pSubOutputDist(:,end))); %H(X_i^k)
-        HSubOutputHat = -sum(pSubOutputHatDist(:,end).*log(pSubOutputHatDist(:,end)));%H(X_i^khat)
-        HAllOutput    = -sum(pAllOutputDist(:,end).*log(pAllOutputDist(:,end)));%H(X)
-        HOutput       = -sum(pOutputDist(:,end).*log(pOutputDist(:,end)));%H(O)
+        HSubOutput    = -sum(pSubOutputDist(:,end).*log2(pSubOutputDist(:,end))); %H(X_i^k)
+        HSubOutputHat = -sum(pSubOutputHatDist(:,end).*log2(pSubOutputHatDist(:,end)));%H(X_i^khat)
+        HAllOutput    = -sum(pAllOutputDist(:,end).*log2(pAllOutputDist(:,end)));%H(X)
+        HOutput       = -sum(pOutputDist(:,end).*log2(pOutputDist(:,end)));%H(O)
         
         
-        HJoint        = -sum(pJointDist(:,end).*log(pJointDist(:,end))); %H(X_i^k,O)
-        HJointHat     = -sum(pJointHatDist(:,end).*log(pJointHatDist(:,end))); %H(X_i^khat,O)
-        HJointAll     = -sum(pJointAllDist(:,end).*log(pJointAllDist(:,end))); %H(X,O)
-        HJointSubHat  = -sum(pJointSubHatDist(:,end).*log(pJointSubHatDist(:,end))); %H(X_i^k,X_i^khat)
+        HJoint        = -sum(pJointDist(:,end).*log2(pJointDist(:,end))); %H(X_i^k,O)
+        HJointHat     = -sum(pJointHatDist(:,end).*log2(pJointHatDist(:,end))); %H(X_i^khat,O)
+        HJointAll     = -sum(pJointAllDist(:,end).*log2(pJointAllDist(:,end))); %H(X,O)
+        HJointSubHat  = -sum(pJointSubHatDist(:,end).*log2(pJointSubHatDist(:,end))); %H(X_i^k,X_i^khat)
         
-%                 round([HSubOutput;HSubOutputHat;HAllOutput;HOutput;HJoint;HJointHat;HJointAll],2) %table 2
+        %                 round([HSubOutput;HSubOutputHat;HAllOutput;HOutput;HJoint;HJointHat;HJointAll],2) %table 2
         
         Isub       = HSubOutput+HOutput-HJoint; % I(X_i^k,O) = H(X_i^k) + H(O) - H(X_i^k,O)
         IsubHat    = HSubOutputHat+HOutput-HJointHat; % I(X_i^khat,O) = H(X_i^khat) + H(O) - H(X_i^khat,O)
         Iall       = HAllOutput+HOutput-HJointAll; % I(X,O) = H(X) + H(O) - H(X,O)
         IsubsubHat = HSubOutput+HSubOutputHat-HJointSubHat;% I(X_i^k,X_i^khat) = H(X_i^k) + H(X_i^khat) - H(X_i^k,X_i^khat)
         
-        
-%                 round([Isub;IsubHat;Iall;(Isub+IsubHat-Iall)],3)%Table 4
+        %                 round([Isub;IsubHat;Iall;(Isub+IsubHat-Iall)],3)%Table 4
         
         degeneracyVec  = [degeneracyVec Isub+IsubHat-Iall];
         degeneracyVec2 = [degeneracyVec2 Isub];
         IallVec        = [IallVec Iall]; %all same anyway
-        if(k==1) %for redundancy
-            IsubVec        = [IsubVec Isub];
-        end
+        %         if(k==1) %for overall redundancy
+        %             IsubVec = [IsubVec Isub];
+        %         end
+        IsubVec        = [IsubVec Isub];
         IsubsubHatVec  = [IsubsubHatVec IsubsubHat];
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         
     end
     degeneracyVecMean  = [degeneracyVecMean mean(degeneracyVec)];
-    degeneracyVec2Mean = [degeneracyVec2Mean mean(degeneracyVec2)-(k/numOfGates)*Iall];
+    degeneracyVec2Mean = [degeneracyVec2Mean mean(degeneracyVec2)-(k/length(middleGates))*Iall];
     IallVecMean        = [IallVecMean mean(IallVec)];
     IsubsubHatVecMean  = [IsubsubHatVecMean mean(IsubsubHatVec)]; %<I(X_i^k,X_i^khat)>
+    IsubVecKeep{k}     = IsubVec;
 end
+
 degeneracy   = 0.5*sum(degeneracyVecMean);
 degeneracy2  = sum(degeneracyVec2Mean);
-degeneracyUB = (numOfGates/2)*mean(IallVecMean); % (Z/2) I(X,O)
+degeneracyUB = (length(middleGates)/2)*mean(IallVecMean); % (Z/2) I(X,O)
 complexity   = 0.5*sum(IsubsubHatVecMean); % 0.5*sum(<I(X_i^k,X_i^khat)>)
-IsubSum      = sum(IsubVec); % sum(I(X_i,O))
+IsubSum      = sum(IsubVecKeep{1}); % sum(I(X^1_i,O))
 redundancy   = IsubSum-mean(IallVecMean); % sum(<I(X^k,O)>)-I(X,O)
+
+
 end
 

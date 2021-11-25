@@ -4,7 +4,6 @@ if(isfile(['AFTER_TOL_ALL_SEED_' num2str(seed) '.mat']))
     fileinfoAfter    = dir(['AFTER_TOL_FITTEST_CIRCUIT_SEED_' num2str(seed) '_*.mat']);
     totalNum         = size(fileinfoBefore,1)+size(fileinfoAfter,1);
     keepData       = [];
-%     keepData_1       = [];
     simIdx           = totalNum;
     
     load(['AFTER_TOL_FITTEST_CIRCUIT_SEED_' num2str(seed) '_' num2str(simIdx) '.mat']);
@@ -20,17 +19,10 @@ if(isfile(['AFTER_TOL_ALL_SEED_' num2str(seed) '.mat']))
     fittestTextCircuit           = textCircuitsMutated(cell2mat(textCircuitsMutated(:,1))==fittestCircuitIdx,:);
     [keepOutput,keepAllOutput]   = solvePerturbedCircuit(numOfInputs,1,fittestTextCircuit(:,2:3),fittestStructure,0);
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% FOR OPTION 0 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    [degeneracy,degeneracy2,degeneracyUB,redundancy,complexity,circuitSize] = calculateDegeneracyOption(keepOutput,keepAllOutput,fittestStructure,0);
+    [degeneracy,degeneracy2,degeneracyUB,redundancy,complexity,circuitSize] = calculateDegeneracy(keepOutput,keepAllOutput,fittestStructure);
     keepData = [keepData; simIdx circuitSize fitness ...
         faultTolerance degeneracy degeneracy2 degeneracyUB ...
         redundancy complexity];
-    
-%     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% FOR OPTION 1 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%     [degeneracy,degeneracy2,degeneracyUB,redundancy,complexity,circuitSize] = calculateDegeneracyOption(keepOutput,keepAllOutput,fittestStructure,1);
-%     keepData_1 = [keepData_1; simIdx circuitSize fitness ...
-%         faultTolerance degeneracy degeneracy2 degeneracyUB ...
-%         redundancy complexity];
-    
     save(['RDC_ALL_SEED_' num2str(seed) '.mat']) %REDUNDANCY, DEGENERACY, COMPLEXITY
 else
     disp('Sims not complete for this seed yet, havent saved anything.')

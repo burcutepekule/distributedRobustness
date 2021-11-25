@@ -14,7 +14,7 @@ seedsConverged = str2double(extractBefore(extractAfter(allNames,'RDC_ALL_SEED_')
 %  redundancy        8
 %  complexity        9
 %  ];
-% GATHER DATA
+%% GATHER DATA
 seedMat               = [];
 circuitSizeMat        = [];
 fitnessMat            = [];
@@ -71,6 +71,7 @@ end
 % complexityMat_AFT = complexityMat_AFT(inds);
 % faultToleranceMat_AFT = faultToleranceMat_AFT(inds);
 %% PLOT
+close all;
 h=figure(1);
 set(h, 'Position',  [100, 300, 1000, 1000])
 axis tight manual % this ensures that getframe() returns a consistent size
@@ -80,7 +81,11 @@ edgeMat  = cmap;
 %REDUNDANCY VS DEGENERACY
 subplot(2,2,1)
 hold on;
-scatter(redundancyMat,degeneracyMat,[],cmap,'filled');
+% scatter(log(redundancyMat),log(degeneracyMat),[],cmap,'filled');
+% xlabel('Redundancy','FontSize', 22);
+% ylabel('Degeneracy','FontSize', 22);
+% axis([0 3 0 3])
+scatter((redundancyMat),(degeneracyMat),[],cmap,'filled');
 xlabel('Redundancy','FontSize', 22);
 ylabel('Degeneracy','FontSize', 22);
 grid on;

@@ -6,10 +6,10 @@ function [] = runSeed(seed)
 rng(seed);
 clearvars -except seed
 disp(['---------------- Simulating seed ' num2str(seed) ' ----------------'])
-numOfInputs    = 3; %number of inputs
+numOfInputs    = 2; %number of inputs
 numOfOutputs   = 2; %number of outputs
 numOfGates     = 5; %number of NAND gates to start with
-numOfRuns      = 500; %number of trials
+numOfRuns      = 1000; %number of trials
 numOfCandidateSolutions = 10; %number of candidate solutions (generate here, this cannot be in a function since needs to be constant)
 outputMat = randn([2^numOfInputs,numOfOutputs])>0; %Random Input - Output truthtable
 numSims   = 1000;
@@ -107,7 +107,7 @@ while(sumDiffTolerance>0 || tolMeanTolerance<tolTolerance)
     
     fitness(sim,:)        = fitnessTemp;
     faultTolerance(sim,:) = faultToleranceTemp;
-    fittestIdxs           = find(fitness(sim,:)==1); %we know that it is 1 now
+    fittestIdxs           = find(fitness(sim,:)==1); %we know that max is 1 now
     maxTolerance          = max(faultTolerance(sim,fittestIdxs),[],2); %among the fittest
     tolerantIdxs          = find(faultTolerance(sim,:)==maxTolerance);
     intersectIdxs         = intersect(fittestIdxs,tolerantIdxs);

@@ -23,8 +23,8 @@ while(any(backwardConnections) || (isempty(connectedNode2Remove) && condRemove==
     %     layerMutateAt     = 3;
     %     inputNodes2remove = [3021,3022];
     %
-%     layerMutateAt     = 2;
-%     inputNodes2remove = [2021,2022];
+    %     layerMutateAt     = 2;
+    %     inputNodes2remove = [2021,2022];
     %
     %     layerMutateAt     = 2;
     %     inputNodes2remove = [2031,2032];
@@ -313,7 +313,9 @@ while(any(backwardConnections) || (isempty(connectedNode2Remove) && condRemove==
             allGatesUse10Temp = allGatesUse10(indOfLayers==k);
             diffGates         = diff(allGatesUse10Temp);
             if(any(diffGates>1))
-                cumsumDiff     = cumsum(diffGates);
+                diffGates0     = diffGates;
+                diffGates0(diffGates>1)=0;
+                cumsumDiff     = cumsum(diffGates)-cumsum(diffGates0);
                 subtractDiff   = [0;cumsumDiff(cumsumDiff==0);cumsumDiff(cumsumDiff>0)-1];
                 allGatesUseNew = allGatesUseOld-10*subtractDiff;
             else

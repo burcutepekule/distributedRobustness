@@ -5,7 +5,11 @@ numOfCandidateSolutions= max(cell2mat(textCircuits(:,1)));
 for tempCircuitIdx=1:numOfCandidateSolutions %for each circuit, calculate fitness and fault tolerance
     tempCircuit   = textCircuits(cell2mat(textCircuits(:,1))==tempCircuitIdx,:);
     tempCircuit   = tempCircuit(:,2:3);
-    tempStructure = keepStructure{tempCircuitIdx};
+    if(numOfCandidateSolutions>1)
+        tempStructure = keepStructure{tempCircuitIdx};
+    else
+        tempStructure = keepStructure;
+    end
     % fitness of the cth circuit
     disp(['Calculating fitness for circuit ' num2str(tempCircuitIdx)])
     [keepOutputNotPerturbed,~] = solvePerturbedCircuit(numOfInputs,tempCircuitIdx,tempCircuit,tempStructure,0);
