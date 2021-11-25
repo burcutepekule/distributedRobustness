@@ -1,5 +1,5 @@
 function [keepOutput,keepAllOutput] = solvePerturbedCircuit(numOfInputs,tempCircuitIdx,tempCircuit,tempStructure,outputGate2Perturb)
-
+ 
 inpMat=[];
 for i=0:(2^numOfInputs-1)
     inpMat = [inpMat;str2logicArray(dec2bin(i,numOfInputs))];
@@ -29,6 +29,10 @@ for inpIdx=1:size(inpMat,1)
             for p=1:length(inpNodes)
                 [rc,~]=findInCell(tempCircuit,inpNodes(p));
                 inpKeep = [inpKeep,cell2mat(tempCircuit(rc,1))];
+            end
+            if(isempty(inpKeep))
+                tempCircuit
+                inpKeep
             end
             inpSym_1   = sym(strcat('i_',sprintf('%d',inpKeep(1))));
             inpSym_2   = sym(strcat('i_',sprintf('%d',inpKeep(2))));

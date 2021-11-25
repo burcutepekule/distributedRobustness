@@ -3,10 +3,19 @@ fittestCircuitIdx= 1;
 numOfOutputs     = 2;
 numOfInputs      = 2;
 run('loadFIG3B.m')
+fittestTextCircuit_3B = fittestTextCircuit;
+fittestStructure_3B   = fittestStructure;
 figure(1)
-connectionMat_3B = drawCircuit_text(fittestStructure,fittestTextCircuit,numOfOutputs,1);
-[textCircuitsTemp_mutated,structureTemp_mutated] = mutation02(textCircuitsTemp,structureTemp)
-connectionMat_3Bmut = drawCircuit_text(fittestStructure,fittestTextCircuit,numOfOutputs,1);
+connectionMat_3B = drawCircuit_text(fittestStructure_3B,fittestTextCircuit_3B,numOfOutputs,1);
+run('loadFIG3A.m')
+fittestTextCircuit_3A = fittestTextCircuit;
+fittestStructure_3A   = fittestStructure;
+figure(2)
+connectionMat_3A = drawCircuit_text(fittestStructure_3A,fittestTextCircuit_3A,numOfOutputs,1);
+%%
+[textCircuitsTemp_3Bmut,structureTemp_3Bmut] = mutation03blayer(fittestTextCircuit_3B,fittestStructure_3B,5,0);
+figure 
+connectionMat_3Bmut = drawCircuit_text(structureTemp_3Bmut,textCircuitsTemp_3Bmut,numOfOutputs,1);
 
 %%
 [keepOutput,keepAllOutput] = solvePerturbedCircuit(numOfInputs,1,fittestTextCircuit(:,2:3),fittestStructure,0);

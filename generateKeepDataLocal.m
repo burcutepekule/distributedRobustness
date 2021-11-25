@@ -1,21 +1,21 @@
-function [] = generateKeepData(seed)
-if(isfile(['AFTER_TOL_ALL_SEED_' num2str(seed) '.mat']))
-%     fileinfoBefore   = dir(['BEFORE_TOL_FITTEST_CIRCUIT_SEED_' num2str(seed) '_*.mat']);
-%     fileinfoAfter    = dir(['AFTER_TOL_FITTEST_CIRCUIT_SEED_' num2str(seed) '_*.mat']);
-%     totalNum         = size(fileinfoBefore,1)+size(fileinfoAfter,1);
-%     keepData       = [];
-%     simIdx           = totalNum;
-%     load(['AFTER_TOL_FITTEST_CIRCUIT_SEED_' num2str(seed) '_' num2str(simIdx) '.mat']);
-
-%     if(~isempty(faultTolerance))
-%         fitness        = 1;
-%         faultTolerance = faultTolerance(simIdx,fittestCircuitIdx);
-%     else
-%         fitness        = fitness(simIdx,fittestCircuitIdx);
-%         faultTolerance = 0;
-%     end
-
-    load(['AFTER_TOL_ALL_SEED_' num2str(seed) '.mat']);
+function [] = generateKeepDataLocal(seed)
+if(isfile(['./cluster/AFTER_TOL_ALL_SEED_' num2str(seed) '.mat']))
+    %     fileinfoBefore   = dir(['BEFORE_TOL_FITTEST_CIRCUIT_SEED_' num2str(seed) '_*.mat']);
+    %     fileinfoAfter    = dir(['AFTER_TOL_FITTEST_CIRCUIT_SEED_' num2str(seed) '_*.mat']);
+    %     totalNum         = size(fileinfoBefore,1)+size(fileinfoAfter,1);
+    %     keepData       = [];
+    %     simIdx           = totalNum;
+    %     load(['AFTER_TOL_FITTEST_CIRCUIT_SEED_' num2str(seed) '_' num2str(simIdx) '.mat']);
+    
+    %     if(~isempty(faultTolerance))
+    %         fitness        = 1;
+    %         faultTolerance = faultTolerance(simIdx,fittestCircuitIdx);
+    %     else
+    %         fitness        = fitness(simIdx,fittestCircuitIdx);
+    %         faultTolerance = 0;
+    %     end
+    
+    load(['./cluster/AFTER_TOL_ALL_SEED_' num2str(seed) '.mat']);
     faultTolerance = faultTolerance(end,fittestCircuitIdx);
     fitness        = fitness(end,fittestCircuitIdx);
     keepData                     = [];

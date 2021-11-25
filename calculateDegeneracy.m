@@ -106,6 +106,5 @@ complexity   = 0.5*sum(IsubsubHatVecMean); % 0.5*sum(<I(X_i^k,X_i^khat)>)
 IsubSum      = sum(IsubVecKeep{1}); % sum(I(X^1_i,O))
 redundancy   = IsubSum-mean(IallVecMean); % sum(<I(X^k,O)>)-I(X,O)
 
-
 end
 
