@@ -76,12 +76,14 @@ disp(['---------------- seed ' num2str(seed) ', max fitness of 1 achieved, now c
 % clearvars -except seed
 % load(['BEFORE_TOL_ALL_SEED_' num2str(seed) '.mat'])
 % sim
-sumDiffTolerance    = 1e6; %arbitrarily large number
+sumDiffTolerance    = 1; % to enter the loop
+sumDiffIndex        = 1; % to enter the loop
 tolMeanTolerance    = 0;
 tolTolerance        = 0.60; %?
-tolLength           = 4;
+tolLength           = 49;
 keepFaultTolerance  = [];
-while(sumDiffTolerance>0 || tolMeanTolerance<tolTolerance)
+keepIndex           = [];
+while(sumDiffTolerance>0 || sumDiffIndex>0 || tolMeanTolerance<tolTolerance)
     disp(['---------------- seed ' num2str(seed) ', at simulation ' num2str(sim-1) ' ----------------'])
     fittestStructure     = structuresMutated{fittestCircuitIdx};
     fittestTextCircuit   = textCircuitsMutated(cell2mat(textCircuitsMutated(:,1))==fittestCircuitIdx,:);
@@ -113,17 +115,24 @@ while(sumDiffTolerance>0 || tolMeanTolerance<tolTolerance)
     intersectIdxs         = intersect(fittestIdxs,tolerantIdxs);
     if(~isempty(intersectIdxs))
         disp(['----------------  seed ' num2str(seed) ', Intersection between the fittest and the most tolerant, sampling from the fittest AND the most tolerant  ----------------'])
-        fittestCircuitIdx     = datasample(intersectIdxs,1);
+        if(ismember(1,intersectIdxs))
+            fittestCircuitIdx = 1;
+        else
+            fittestCircuitIdx     = datasample(intersectIdxs,1);
+        end
     else
         disp(['----------------  seed ' num2str(seed) ', No intersection between the fittest and the most tolerant, sampling from the fittest  ----------------'])
         fittestCircuitIdx     = datasample(fittestIdxs,1);
     end
     
     keepFaultTolerance    = [keepFaultTolerance faultTolerance(sim,fittestCircuitIdx)];
+    keepIndex             = [keepIndex fittestCircuitIdx];
     disp(['---------------- seed ' num2str(seed) ', simulation ' num2str(sim-1) ' complete, max fitness ' num2str(maxFitness) ' with index ' num2str(fittestCircuitIdx) ', with fault tolerance ' num2str(faultTolerance(sim,fittestCircuitIdx)) ' ----------------'])
     if(length(keepFaultTolerance)>tolLength) %get the diff of last tolerance values
         faultToleranceDiff = diff(keepFaultTolerance((end-tolLength):end));
+        indexDiff          = diff(keepIndex((end-tolLength):end));
         sumDiffTolerance   = sum(abs(faultToleranceDiff));
+        sumDiffIndex       = sum(abs(indexDiff)); %fittestCircuitIdx will be 1 for max(tolLength+1) and min(tolLength) times if same circuit converges
         tolMeanTolerance   = mean(keepFaultTolerance((end-tolLength):end));
     end
     save(['AFTER_TOL_FITTEST_CIRCUIT_SEED_' num2str(seed) '_' num2str(sim) '.mat'])

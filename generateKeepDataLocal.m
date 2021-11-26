@@ -16,14 +16,16 @@ if(isfile(['./cluster/AFTER_TOL_ALL_SEED_' num2str(seed) '.mat']))
     %     end
     
     load(['./cluster/AFTER_TOL_ALL_SEED_' num2str(seed) '.mat']);
-    faultTolerance = faultTolerance(end,fittestCircuitIdx);
-    fitness        = fitness(end,fittestCircuitIdx);
+    faultTolerance               = faultTolerance(end,fittestCircuitIdx);
+    fitness                      = fitness(end,fittestCircuitIdx);
     keepData                     = [];
     fittestStructure             = structuresMutated{fittestCircuitIdx};
     fittestTextCircuit           = textCircuitsMutated(cell2mat(textCircuitsMutated(:,1))==fittestCircuitIdx,:);
     [keepOutput,keepAllOutput]   = solvePerturbedCircuit(numOfInputs,1,fittestTextCircuit(:,2:3),fittestStructure,0);
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% FOR OPTION 0 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     [degeneracy,degeneracy2,degeneracyUB,redundancy,complexity,circuitSize] = calculateDegeneracy(keepOutput,keepAllOutput,fittestStructure);
+%     [degeneracy3,~] = calculateDegeneracyIncSize(keepOutput,keepAllOutput,fittestTextCircuit,fittestStructure);
+%     degeneracy3-degeneracy
     keepData = [keepData; size(fitness,1) circuitSize fitness ...
         faultTolerance degeneracy degeneracy2 degeneracyUB ...
         redundancy complexity];
