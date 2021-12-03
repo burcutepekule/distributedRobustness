@@ -1,3 +1,5 @@
+clear fittestTextCircuit fittestStructure
+
 fittestTextCircuit{1,1} = 1;
 fittestTextCircuit{2,1} = 1;
 fittestTextCircuit{3,1} = 1;

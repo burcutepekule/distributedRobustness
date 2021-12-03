@@ -1,4 +1,4 @@
-function [degeneracy,redundancyMean] = calculateDegeneracyIncSize(keepOutput,keepAllOutput,fittestTextCircuit,fittestStructure)
+function [degeneracy,redundancyMean,degeneracyVec] = calculateDegeneracyIncSize(keepOutput,keepAllOutput,fittestTextCircuit,fittestStructure)
 
 % calculates degeneracy according to Measures of degeneracy and redundancy in biological networks by GIULIO TONONI†, OLAF SPORNS, AND GERALD M. EDELMAN
 % Equation 4
@@ -21,7 +21,6 @@ IsubVecKeep        = [];
 for k=1:length(middleGates)
     disp(['Calculating for ' num2str(k) '-gate subcircuits...'])
     gates2use     = nchoosek(middleGates,k);
-    
     degeneracyVec = [];
     degeneracyVec2= [];
     IallVec       = [];
@@ -45,13 +44,15 @@ for k=1:length(middleGates)
         fittestTextCircuitSubset   = fittestTextCircuit(sort([idxInput(1,:) idxSub(1,:)]),:); %calculate without output layer
         [fittestStructureSubset,~] = text2structureSubset(fittestTextCircuitSubset);
         fittestStructureSubset     = [fittestStructureSubset;fittestStructure(end,:)]; %add the output layer
-        [degeneracy,degeneracy2,degeneracyUB,redundancy,complexity,circuitSize] =  calculateDegeneracy(keepOutput,keepAllOutputSubset,fittestStructureSubset);
+        [degeneracy,degeneracy2,degeneracy3,degeneracyUB,redundancy,complexity,complexity2,circuitSize] =  calculateDegeneracy(keepOutput,keepAllOutputSubset,fittestStructureSubset);
         redundancyAll = [redundancyAll redundancy];
     end
+    redundancyAll
     redundancyMean(k)=mean(redundancyAll);
 end
-degeneracy = 0;
+degeneracyVec = [];
 for k=1:length(middleGates)
-    degeneracy = degeneracy+(k/length(middleGates))*redundancyMean(end)-redundancyMean(k);
+    degeneracyVec(k) = (k/length(middleGates))*redundancyMean(end)-redundancyMean(k);
 end
+degeneracy = sum(degeneracyVec);
 end

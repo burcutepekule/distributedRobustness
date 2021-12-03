@@ -26,14 +26,14 @@ elseif(length(varargin)==7)
     numOfLayers    = varargin{5};
     numOfGatesPerLayer = varargin{6};
     numOfCandidateSolutions = varargin{7};
-    runSims        = 3;   
+    runSims        = 3;
 else
     disp('Number of inputs doesnt make sense!')
     runSims        = 0;
 end
 
 if(runSims~=0)
-%     numOfGatesBetween  = numOfGates-numOfOutputs;
+    %     numOfGatesBetween  = numOfGates-numOfOutputs;
     numOfGatesBetween  = numOfGates;
     keepCircuits       = {};
     keepStructure      = {};
@@ -45,7 +45,7 @@ if(runSims~=0)
             noNegative=0;
             while(noNegative==0)
                 numOfLayers        = randi([1 numOfGatesBetween],1);
-%                 [tempCircuit numOfLayers]
+                %                 [tempCircuit numOfLayers]
                 numOfGatesPerLayer = [];
                 numOfGatesUsed     = 0;
                 if(numOfLayers==1)
@@ -157,12 +157,15 @@ if(runSims~=0)
             end
         end
         all2Connect = unique(all2Connect);
-        %
-        keepConnections    = {};
+        %%%%%%%%%% WIRE THE CIRCUIT %%%%%%%%%%
+        
+        %%%%%%%%%% FIRST, MAKE SURE THAT LAST LAYER IS COVERED SINCE IT HAS
+        %%%%%%%%%% ONLY THE OUTPUT LAYER TO BE CONNECTED TO, WHICH HAS
+        %%%%%%%%%% FIXED NUMBER OF INPUT NODES = 2*NUM OF OUTPUTS
+        keepConnections    = cell(size(maskMat));
         alreadyConnected   = [];
-        % connect the last-1 layer to the output first
+        
         layerCounter = size(numOfGatesPerLayer,1)-1;
-        inpLayer     = numOfGatesPerLayer(layerCounter,1);
         numOfNodes   = numOfGatesPerLayer(layerCounter,2);
         gates2connect= numOfGatesPerLayer(layerCounter+1:end,:);
         for nodeCounter = 1:numOfNodes
@@ -172,10 +175,10 @@ if(runSims~=0)
                 % encode as layerIndex*100 + gate index * 10 + node index
                 layerConnect     = gates2connect(layerConnectIdx,1);
                 % in the first layer, all needs to be connected to input
-                possibleGates    = gates2connect(layerConnectIdx,2);
-                inpNodes = setdiff(reshape(repmat(1000*layerConnect+10*(1:possibleGates)',1,2)+repmat((1:2),possibleGates,1),1,[]),alreadyConnected);
+                possibleGates = gates2connect(layerConnectIdx,2);
+                inpNodes      = setdiff(reshape(repmat(1000*layerConnect+10*(1:possibleGates)',1,2)+repmat((1:2),possibleGates,1),1,[]),alreadyConnected);
                 if(~isempty(inpNodes))
-                    connected2= datasample(inpNodes,randi(max(1,round(length(inpNodes))),1),'Replace',false);
+                    connected2= datasample(inpNodes,1,'Replace',false);
                 else
                     connected2=[];
                 end
@@ -185,31 +188,105 @@ if(runSims~=0)
             keepConnections{layerCounter,nodeCounter} = keepconnected2;
         end
         
-        % then connect all the other layers
-        for layerCounter=1:size(numOfGatesPerLayer,1)-2
-            inpLayer      = numOfGatesPerLayer(layerCounter,1);
-            numOfNodes    = numOfGatesPerLayer(layerCounter,2);
-            gates2connect = numOfGatesPerLayer(layerCounter+1:end,:);
-            for nodeCounter = 1:numOfNodes
-                keepconnected2 = [];
-                for layerConnectIdx = 1:size(gates2connect,1)
-                    % connect to 1, 2, or both input nodes
-                    % encode as layerIndex*100 + gate index * 10 + node index
-                    layerConnect     = gates2connect(layerConnectIdx,1);
-                    possibleGates    = gates2connect(layerConnectIdx,2);
-                    inpNodes = setdiff(reshape(repmat(1000*layerConnect+10*(1:possibleGates)',1,2)+repmat((1:2),possibleGates,1),1,[]),alreadyConnected);
+        % THEN FILL THE REST
+        while(~isempty(setdiff(all2Connect,alreadyConnected)))
+            for layerCounter=(size(numOfGatesPerLayer,1)-2):-1:1
+                inpLayer      = numOfGatesPerLayer(layerCounter,1);
+                numOfNodes    = numOfGatesPerLayer(layerCounter,2);
+                gates2connect = numOfGatesPerLayer(layerCounter+1:end,:);
+                for nodeCounter = 1:numOfNodes
+                    keepconnected2 = [];
+                    inpNodes       = [];
+                    for layerConnectIdx = 1:size(gates2connect,1)
+                        % encode input nodes as layerIndex*100 + gate index * 10 + node index
+                        layerConnect     = gates2connect(layerConnectIdx,1);
+                        possibleGates    = gates2connect(layerConnectIdx,2);
+                        inpNodes = [inpNodes setdiff(reshape(repmat(1000*layerConnect+10*(1:possibleGates)',1,2)+repmat((1:2),possibleGates,1),1,[]),alreadyConnected)];
+                    end
                     if(~isempty(inpNodes))
-                        connected2= datasample(inpNodes,randi(length(inpNodes)+1)-1,'Replace',false);
+                        %                     numOfConnectionsUpperBound = length(inpNodes)-(numOfNodes-nodeCounter);
+                        %                     if(numOfConnectionsUpperBound==0)
+                        %                         1
+                        %                     end
+                        %                     numOfConnections2establish = randi(numOfConnectionsUpperBound);
+                        %                     connected2 = datasample(inpNodes,numOfConnections2establish,'Replace',false);
+                        connected2 = datasample(inpNodes,1,'Replace',false);
                     else
                         connected2=[];
                     end
-                    alreadyConnected = [alreadyConnected,connected2];
-                    keepconnected2   = [keepconnected2,connected2];
+                    alreadyConnected  = [alreadyConnected,connected2];
+                    keepconnected2    = [keepconnected2,connected2];
+                    connected2Already = keepConnections{layerCounter,nodeCounter};
+                    keepConnections{layerCounter,nodeCounter} = [connected2Already keepconnected2];
                 end
-                keepConnections{layerCounter,nodeCounter} = keepconnected2;
             end
         end
         
+        
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% FIRST VERSION %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        %         layerCounter = size(numOfGatesPerLayer,1)-1;
+        %         inpLayer     = numOfGatesPerLayer(layerCounter,1);
+        %         numOfNodes   = numOfGatesPerLayer(layerCounter,2);
+        %         gates2connect= numOfGatesPerLayer(layerCounter+1:end,:);
+        %         for nodeCounter = 1:numOfNodes
+        %             keepconnected2 = [];
+        %             for layerConnectIdx = 1:size(gates2connect,1)
+        %                 % connect to 1, 2, or both input nodes
+        %                 % encode as layerIndex*100 + gate index * 10 + node index
+        %                 layerConnect     = gates2connect(layerConnectIdx,1);
+        %                 % in the first layer, all needs to be connected to input
+        %                 possibleGates    = gates2connect(layerConnectIdx,2);
+        %                 inpNodes = setdiff(reshape(repmat(1000*layerConnect+10*(1:possibleGates)',1,2)+repmat((1:2),possibleGates,1),1,[]),alreadyConnected);
+        %                 if(~isempty(inpNodes))
+        % %                     connected2= datasample(inpNodes,randi(max(1,round(length(inpNodes))),1),'Replace',false);
+        %                     connected2= datasample(inpNodes,1,'Replace',false);
+        %                 else
+        %                     connected2=[];
+        %                 end
+        %                 alreadyConnected = [alreadyConnected,connected2];
+        %                 keepconnected2   = [keepconnected2,connected2];
+        %             end
+        %             keepConnections{layerCounter,nodeCounter} = keepconnected2;
+        %         end
+        %
+        %         % then connect all the other layers
+        %         for layerCounter=1:size(numOfGatesPerLayer,1)-2
+        %             inpLayer      = numOfGatesPerLayer(layerCounter,1);
+        %             numOfNodes    = numOfGatesPerLayer(layerCounter,2);
+        %             gates2connect = numOfGatesPerLayer(layerCounter+1:end,:);
+        %             for nodeCounter = 1:numOfNodes
+        %                 keepconnected2 = [];
+        %                 for layerConnectIdx = 1:size(gates2connect,1)
+        %                     % connect to 1, 2, or both input nodes
+        %                     % encode as layerIndex*100 + gate index * 10 + node index
+        %                     layerConnect     = gates2connect(layerConnectIdx,1);
+        %                     possibleGates    = gates2connect(layerConnectIdx,2);
+        %                     inpNodes = setdiff(reshape(repmat(1000*layerConnect+10*(1:possibleGates)',1,2)+repmat((1:2),possibleGates,1),1,[]),alreadyConnected);
+        %                     if(~isempty(inpNodes))
+        %                         %%%%%%%% IF YOU DO NOT LIMIT THE NUMBER OF RANDOMLY
+        %                         %%%%%%%% CONNECTED NODES, THIS PART CAUSES EARLY
+        %                         %%%%%%%% NODES TO CONNECT TO TOO MANY NODES BECAUSE
+        %                         %%%%%%%% OF THE NUMBER OF LAYERS AHEAD OF
+        %                         %%%%%%%% THEM.THAT'S WHY INITIALLY IT WAS THE FIRST
+        %                         %%%%%%%% LINE BEFORE, THEN I DECIDED TO PUT AN IF
+        %                         %%%%%%%% CONDITION DEPENDING ON THE NUMBER OF
+        %                         %%%%%%%% POSSIBLE CONNECTIONS (MAX floor(numOfGatesBetween/2)).
+        %                         %                         connected2= datasample(inpNodes,randi(length(inpNodes)+1)-1,'Replace',false);
+        %                         numOfConnections2establish = randi(length(inpNodes)+1)-1;
+        %                         if(numOfConnections2establish>floor(length(inpNodes)/4))
+        %                             numOfConnections2establish=randi(floor(length(inpNodes)/4)+1)-1;
+        %                         end
+        %                         connected2 = datasample(inpNodes,numOfConnections2establish,'Replace',false);
+        %                     else
+        %                         connected2=[];
+        %                     end
+        %                     alreadyConnected = [alreadyConnected,connected2];
+        %                     keepconnected2   = [keepconnected2,connected2];
+        %                 end
+        %                 keepConnections{layerCounter,nodeCounter} = keepconnected2;
+        %             end
+        %         end
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% FIRST VERSION %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         
         % check the open input nodes
         keepNodesUsed   = [];
@@ -225,12 +302,28 @@ if(runSims~=0)
             inpNode           = InpNodesNotUsed(inIdx);
             inpLayer          = floor(inpNode/1000);
             layersPrior       = 0:(inpLayer-1);
-            layersPriorPick   = datasample(layersPrior,1);% pick a prior layer randomly
+            % inverse weight them according to how many connections they have
+            numOfOldConnections = [];
+            for lp=1:layersPrior
+                for lpr=1:size(keepConnections,2)
+                    numOfOldConnections(lp) = numOfOldConnections(lp)+length(keepConnections{lp+1,lpr});
+                end
+            end
+            propOfConnection  = 1./(numOfOldConnections+1); %+1 to prevent 1/0
+            propOfConnection  = propOfConnection./sum(propOfConnection);
+            layersPriorPick   = datasample(layersPrior,1,'Weights',propOfConnection);% pick a prior layer randomly
             nodesPrior        = numOfGatesPerLayer((numOfGatesPerLayer(:,1)==layersPriorPick),2);
-            nodesPriorPick    = datasample(1:nodesPrior,1);% pick a prior gate randomly
-            allConnectionsOld = keepConnections{layersPriorPick+1,nodesPriorPick};
-            allConnectionsNew = [allConnectionsOld,inpNode];
-            keepConnections{layersPriorPick+1,nodesPriorPick} = sort(allConnectionsNew);
+            % inverse weight them according to how many connections they have
+            numOfOldConnections = [];
+            for np=1:nodesPrior
+                numOfOldConnections(np) = length(keepConnections{layersPriorPick+1,np});
+            end
+            propOfConnection  = 1./(numOfOldConnections+1); %+1 to prevent 1/0
+            propOfConnection  = propOfConnection./sum(propOfConnection);
+            nodesPriorPick    = datasample(1:nodesPrior,1,'Weights',propOfConnection);% pick a prior gate randomly
+            allConnectionsOldPick = keepConnections{layersPriorPick+1,nodesPriorPick};
+            allConnectionsNewPick = [allConnectionsOldPick,inpNode];
+            keepConnections{layersPriorPick+1,nodesPriorPick} = sort(allConnectionsNewPick);
         end
         
         OutputNodesNotUsed = [];
@@ -312,15 +405,16 @@ end
 if(convert==1)
     % Convert circuit structure to text
     if(size(keepNumOfLayers,2)<numOfCandidateSolutions)
-         disp('Not enough candidate solutions, increase numOfRuns')   
-         [textCircuits,strAllText] = circuit2text(keepCircuits,keepStructure);
+        disp('Not enough candidate solutions, increase numOfRuns')
+        [textCircuits,strAllText] = circuit2text(keepCircuits,keepStructure);
     else
-        keepCircuits    = keepCircuits(1:numOfCandidateSolutions);
-        keepStructure   = keepStructure(1:numOfCandidateSolutions);
-        keepNumOfLayers = keepNumOfLayers(1:numOfCandidateSolutions);
+        keepIdxs        = datasample(1:length(keepCircuits),numOfCandidateSolutions,'Replace',false);
+        keepCircuits    = keepCircuits(keepIdxs);
+        keepStructure   = keepStructure(keepIdxs);
+        keepNumOfLayers = keepNumOfLayers(keepIdxs);
         [textCircuits,strAllText] = circuit2text(keepCircuits,keepStructure);
     end
-
+    
 else
     textCircuits=[];
     strAllText =[];

@@ -5,9 +5,9 @@ numOfInputs      = 2;
 run('loadFIG3A.m')
 figure
 connectionMat_3A = drawCircuit_text(fittestStructure,fittestTextCircuit,numOfOutputs,1);
-[keepOutput,keepAllOutput] = solvePerturbedCircuit(numOfInputs,1,fittestTextCircuit(:,2:3),fittestStructure,0);
+[keepOutput,keepAllOutput] = solvePerturbedCircuit(1,fittestTextCircuit(:,2:3),fittestStructure,0);
 checkStatisticalIndependence(keepAllOutput,fittestStructure)
-[fitness,faultTolerance] = calculateFitnessAndFaultTolerance(fittestTextCircuit,fittestStructure,numOfInputs,keepOutput,1);
+[fitness,faultTolerance] = calculateFitnessAndFaultTolerance(fittestTextCircuit,fittestStructure,keepOutput,1);
 [degeneracy,degeneracy2,degeneracyUB,redundancy,complexity,circuitSize] = calculateDegeneracy(keepOutput,keepAllOutput,fittestStructure);
 
 %%
@@ -18,9 +18,9 @@ numOfInputs      = 2;
 run('loadFIG3B.m')
 figure
 connectionMat_3B = drawCircuit_text(fittestStructure,fittestTextCircuit,numOfOutputs,1);
-[keepOutput,keepAllOutput] = solvePerturbedCircuit(numOfInputs,1,fittestTextCircuit(:,2:3),fittestStructure,0);
+[keepOutput,keepAllOutput] = solvePerturbedCircuit(1,fittestTextCircuit(:,2:3),fittestStructure,0);
 checkStatisticalIndependence(keepAllOutput,fittestStructure)
-[fitness,faultTolerance] = calculateFitnessAndFaultTolerance(fittestTextCircuit,fittestStructure,numOfInputs,keepOutput,1);
+[fitness,faultTolerance] = calculateFitnessAndFaultTolerance(fittestTextCircuit,fittestStructure,keepOutput,1);
 %%
 %%
 [degeneracy,degeneracy2,degeneracyUB,redundancy,complexity,circuitSize] = calculateDegeneracy(keepOutput,keepAllOutput,fittestStructure);

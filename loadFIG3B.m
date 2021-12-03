@@ -1,3 +1,5 @@
+clear fittestTextCircuit fittestStructure
+
 fittestTextCircuit{1,1} = 1;
 fittestTextCircuit{2,1} = 1;
 fittestTextCircuit{3,1} = 1;
@@ -7,8 +9,8 @@ fittestTextCircuit{6,1} = 1;
 fittestTextCircuit{7,1} = 1;
 fittestTextCircuit{8,1} = 1;
 
-fittestTextCircuit{1,2} = 13;
-fittestTextCircuit{2,2} = 23;
+fittestTextCircuit{1,2} = 23; % reverse in the paper
+fittestTextCircuit{2,2} = 13;
 fittestTextCircuit{3,2} = 1013;
 fittestTextCircuit{4,2} = 2013;
 fittestTextCircuit{5,2} = 2023;

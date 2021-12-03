@@ -99,5 +99,7 @@ for k=1:size(connectionMat_x,1)
     end
 end
 axis tight
+
+
 end
 

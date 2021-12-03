@@ -21,6 +21,7 @@ fitnessMat            = [];
 faultToleranceMat     = [];
 degeneracyMat         = [];
 degeneracy2Mat        = [];
+degeneracyUBMat       = [];
 redundancyMat         = [];
 complexityMat         = [];
 complexityMat_AFT     = [];
@@ -38,6 +39,7 @@ for s=seedsConverged
     faultToleranceMat     = [faultToleranceMat;keepData(end,4)];
     degeneracyMat         = [degeneracyMat;keepData(end,5)];
     degeneracy2Mat        = [degeneracy2Mat;keepData(end,6)];
+    degeneracyUBMat       = [degeneracyUBMat;keepData(end,7)];
     redundancyMat         = [redundancyMat;keepData(end,8)];
     complexityMat         = [complexityMat;keepData(end,9)];
     
@@ -85,7 +87,7 @@ hold on;
 % xlabel('Redundancy','FontSize', 22);
 % ylabel('Degeneracy','FontSize', 22);
 % axis([0 3 0 3])
-scatter((redundancyMat),(degeneracyMat),[],cmap,'filled');
+scatter(redundancyMat,degeneracyMat./degeneracyUBMat,[],cmap,'filled');
 xlabel('Redundancy','FontSize', 22);
 ylabel('Degeneracy','FontSize', 22);
 grid on;

@@ -1,29 +1,38 @@
 function [textCircuitsTemp_mutated,structureTemp_mutated] = mutation01(textCircuitsTemp,structureTemp)
 % RANDOM MUTATION #1
-% (a)+(b) -> pick a random layer n (from 0 (inp. layer) to structureTemp(end,1)-1), and from layer n to n+1, switch two connections.
-% structureTemp stays the same since the number of gates per layer doesn't change
-% textCircuitsTemp changes
-cond=true;
-while (cond)
-    layerMutateFrom = randi(structureTemp(end,1),1)-1; %input layer to second last layer (very last connected to output)
-    cond = (length(1:structureTemp(layerMutateFrom+1,2))<2);
+% pick a connection to randomly cut
+allGatesOutput  = cell2mat(textCircuitsTemp(:,2))';
+allGatesOutputNumConnections = [];
+for k=1:length(allGatesOutput)
+    allGatesOutputNumConnections=[allGatesOutputNumConnections length(cell2mat(textCircuitsTemp(k,3)))];
 end
-% layerMutateTo   = layerMutateFrom+1;
-switchGates     = layerMutateFrom*1000+10*datasample(1:structureTemp(layerMutateFrom+1,2),2,'Replace',false)+3;
-allGates        = cell2mat(textCircuitsTemp(:,2))';
-sw1             = find(allGates==switchGates(1));
-sw2             = find(allGates==switchGates(2));
-allConnections1 = cell2mat(textCircuitsTemp(sw1,3));
-allConnections2 = cell2mat(textCircuitsTemp(sw2,3));
-connection2sw1  = datasample(allConnections1,1);
-connection2sw2  = datasample(allConnections2,1);
+
+cutFromIndex = datasample(find(allGatesOutputNumConnections>1),1);
+cutFrom = datasample(cell2mat(textCircuitsTemp(cutFromIndex,2)),1);
+cutTo   = datasample(cell2mat(textCircuitsTemp(cutFromIndex,3)),1);
+reconnect2possible = allGatesOutput(floor(allGatesOutput./1000)<floor(cutTo/1000));
+reconnect2 = datasample(reconnect2possible,1);
+
+connection2Remove    = [cutFrom cutTo];
+connection2Reconnect = [reconnect2 cutTo];
 
 % sprintf("Switch %d-%d and %d-%d",switchGates(1),connection2sw1,switchGates(2),connection2sw2);
-disp(['Switch ' num2str(switchGates(1)) '-' num2str(connection2sw1) ', and ' num2str(switchGates(2)) '-' num2str(connection2sw2)]);
+disp(['Cutting connection from ' num2str(connection2Remove(1)) ' to ' num2str(connection2Remove(2)) ...
+    ', reconnecting to ' num2str(connection2Reconnect(1))]);
 
 textCircuitsTemp_mutated = textCircuitsTemp;
-textCircuitsTemp_mutated{sw1,3}=[setdiff(allConnections1,connection2sw1),connection2sw2];
-textCircuitsTemp_mutated{sw2,3}=[setdiff(allConnections2,connection2sw2),connection2sw1];
+
+removeConnectionInd      = find(cell2mat(textCircuitsTemp_mutated(:,2))==connection2Remove(1));
+oldConnections           = cell2mat(textCircuitsTemp_mutated(removeConnectionInd,3));
+newConnections           = setdiff(oldConnections,connection2Remove(2));
+textCircuitsTemp_mutated{removeConnectionInd,3} = newConnections;
+
+reconnectInd        = find(cell2mat(textCircuitsTemp_mutated(:,2))==connection2Reconnect(1));
+oldConnections      = cell2mat(textCircuitsTemp_mutated(reconnectInd,3));
+newConnections      = [oldConnections,connection2Reconnect(2)];
+textCircuitsTemp_mutated{reconnectInd,3} = newConnections;
+
 structureTemp_mutated = structureTemp; %doesn't change
+    
 end
 

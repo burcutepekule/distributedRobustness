@@ -1,5 +1,7 @@
-function [keepOutput,keepAllOutput] = solvePerturbedCircuit(numOfInputs,tempCircuitIdx,tempCircuit,tempStructure,outputGate2Perturb)
+function [keepOutput,keepAllOutput] = solvePerturbedCircuit(tempCircuitIdx,tempCircuit,tempStructure,outputGate2Perturb)
  
+numOfInputs   = tempStructure(1,2);
+
 inpMat=[];
 for i=0:(2^numOfInputs-1)
     inpMat = [inpMat;str2logicArray(dec2bin(i,numOfInputs))];
@@ -30,14 +32,20 @@ for inpIdx=1:size(inpMat,1)
                 [rc,~]=findInCell(tempCircuit,inpNodes(p));
                 inpKeep = [inpKeep,cell2mat(tempCircuit(rc,1))];
             end
-            if(isempty(inpKeep))
-                tempCircuit
-                inpKeep
+%             if(isempty(inpKeep)) %for debugging
+%                 tempCircuit
+%                 inpKeep
+%             end
+            
+% for mutation01a (disconnects randomly), you need to ground it. 
+            if(length(inpKeep)<2)
+                inpKeep = [inpKeep zeros(1,2-length(inpKeep))];
             end
             inpSym_1   = sym(strcat('i_',sprintf('%d',inpKeep(1))));
             inpSym_2   = sym(strcat('i_',sprintf('%d',inpKeep(2))));
             outSym     = sym(strcat('i_',sprintf('%d',outNode(1))));
-            eqnTemp    = outSym == ~(inpSym_1 & inpSym_2);
+            eqnTemp    = outSym == ~(inpSym_1 & inpSym_2); %older, logical
+%             eqnTemp    = outSym == nand(inpSym_1,inpSym_2); %new, physical
             eqnKeep    = [eqnKeep; eqnTemp];
             outSymKeep = [outSymKeep; outSym];
         end
