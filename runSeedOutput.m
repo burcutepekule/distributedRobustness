@@ -34,16 +34,16 @@ fitnessPick               = fitness(sim,fittestCircuitIdx);
 [~,faultToleranceInitial] = calculateFitnessAndFaultTolerance(fittestTextCircuit,fittestStructure,outputMat,1);
 faultTolerancePick        = faultToleranceInitial(fittestCircuitIdx);
 
-% plot the initial circuit?
-h=figure('visible','off');
-set(h, 'Position',  [100, 300, 1200, 1000])
-axis tight manual % this ensures that getframe() returns a consistent size
-connectionMatInitial = drawCircuit_text(fittestStructure,fittestTextCircuit,numOfOutputs,1);
-saveas(h,['CIRCUIT_SEED_ ' num2str(seed) '_INITIAL.png'])
+% % plot the initial circuit?
+% h=figure('visible','off');
+% set(h, 'Position',  [100, 300, 1200, 1000])
+% axis tight manual % this ensures that getframe() returns a consistent size
+% connectionMatInitial = drawCircuit_text(fittestStructure,fittestTextCircuit,1);
+% saveas(h,['CIRCUIT_SEED_ ' num2str(seed) '_INITIAL.png'])
 
 
 [keepOutput,keepAllOutput]   = solvePerturbedCircuit(1,fittestTextCircuit(:,2:3),fittestStructure,0);
-[degeneracy,degeneracy2,degeneracy3,degeneracyUB,redundancy,complexity,complexity2,circuitSize] = calculateDegeneracy(keepOutput,keepAllOutput,fittestStructure);
+[degeneracy,degeneracy2,degeneracy3,degeneracyUB,redundancy,complexity,complexity2,circuitSize,IsubOne,IallFinal,IsubMatKeep,IsubsubHatMatKeep,IsubHatMatKeep] = calculateDegeneracy(keepOutput,keepAllOutput,fittestStructure);
 disp(['---------------- seed ' num2str(seed) ', initialization complete, max fitness ' num2str(maxFitness) ' with index ' num2str(fittestCircuitIdx) ' ----------------'])
 disp(['---------------- degeneracy 1,2,3,UB : ' num2str(degeneracy) ' '  num2str(degeneracy2) ' '  num2str(degeneracy3) ' ' num2str(degeneracyUB) ' , redundancy : ' num2str(redundancy) ' ----------------'])
 
@@ -82,7 +82,7 @@ while(maxFitness<1)
     faultTolerancePick            = faultToleranceTemp(fittestCircuitIdx);
     
     [keepOutput,keepAllOutput]   = solvePerturbedCircuit(1,fittestTextCircuit(:,2:3),fittestStructure,0);
-    [degeneracy,degeneracy2,degeneracy3,degeneracyUB,redundancy,complexity,complexity2,circuitSize] = calculateDegeneracy(keepOutput,keepAllOutput,fittestStructure);
+    [degeneracy,degeneracy2,degeneracy3,degeneracyUB,redundancy,complexity,complexity2,circuitSize,IsubOne,IallFinal,IsubMatKeep,IsubsubHatMatKeep,IsubHatMatKeep] = calculateDegeneracy(keepOutput,keepAllOutput,fittestStructure);
     
     [keepOutput outputMat]
     
@@ -155,7 +155,7 @@ while(sumDiffTolerance>0 || sumDiffIndex>0 || tolMeanTolerance<tolTolerance)
     faultTolerancePick = faultTolerance(sim,fittestCircuitIdx);
     
     [keepOutput,keepAllOutput]   = solvePerturbedCircuit(1,fittestTextCircuit(:,2:3),fittestStructure,0);
-    [degeneracy,degeneracy2,degeneracy3,degeneracyUB,redundancy,complexity,complexity2,circuitSize] = calculateDegeneracy(keepOutput,keepAllOutput,fittestStructure);
+    [degeneracy,degeneracy2,degeneracy3,degeneracyUB,redundancy,complexity,complexity2,circuitSize,IsubOne,IallFinal,IsubMatKeep,IsubsubHatMatKeep,IsubHatMatKeep] = calculateDegeneracy(keepOutput,keepAllOutput,fittestStructure);
     
     [keepOutput outputMat]
     

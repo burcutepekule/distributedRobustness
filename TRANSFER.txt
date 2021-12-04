@@ -1,0 +1,11 @@
+
+
+
+rsync -av "btepek@cluster.s3it.uzh.ch:/net/cephfs/home/btepek/DISTRIBUTEDROBUSTNESS/BEFORE_*" /Users/burcu/Dropbox/blogs/smallscaled/distributedRobustness/cluster_output/
+
+rsync -av "btepek@cluster.s3it.uzh.ch:/net/cephfs/home/btepek/DISTRIBUTEDROBUSTNESS/AFTER_*" /Users/burcu/Dropbox/blogs/smallscaled/distributedRobustness/cluster_output/
+
+
+rsync -zarv  --prune-empty-dirs --include "*/"  --include="*.sh" --exclude="*" /Users/burcu/Dropbox/blogs/smallscaled/distributedRobustness/ btepek@cluster.s3it.uzh.ch:/net/cephfs/home/btepek/DISTRIBUTEDROBUSTNESS/
+
+rsync -zarv  --prune-empty-dirs --include "*/"  --include="*.m" --exclude="*" /Users/burcu/Dropbox/blogs/smallscaled/distributedRobustness/ btepek@cluster.s3it.uzh.ch:/net/cephfs/home/btepek/DISTRIBUTEDROBUSTNESS/

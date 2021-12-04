@@ -14,31 +14,9 @@ connectedNodes2Remove = [];diffNodes2Connect=[];condReconnect=true;backwardConne
 % while(isempty(connectedNode2Remove) || length(inputNodes2reconnect)==1 || isempty(connectedNodes2Remove) || ~(isempty(diffNodes2Connect) || ~isempty(connectedNodes2Remove)))
 while(any(backwardConnections) || (isempty(connectedNode2Remove) && condRemove==1) || (isempty(renameMat) && isempty(connection2Reconnect)) || isempty(connectedNodes2Remove) || ~(isempty(diffNodes2Connect) || ~isempty(connectedNodes2Remove)))
     
-    layerMutateAt     = randi(structureTemp(end,1),1); %can't delete input, so all middle layers
+    layerMutateAt     = randi(structureTemp(end-1,1),1); %can't delete input or output, so all middle layers
     inputNodes2remove = datasample(1000*layerMutateAt+10*(1:structureTemp(layerMutateAt+1,2)),1)+[1 2];
-    
-    %     layerMutateAt     = 1;
-    %     inputNodes2remove = [1011,1012];
-    %
-    %     layerMutateAt     = 3;
-    %     inputNodes2remove = [3021,3022];
-    %
-    %     layerMutateAt     = 2;
-    %     inputNodes2remove = [2021,2022];
-    %
-    %     layerMutateAt     = 2;
-    %     inputNodes2remove = [2031,2032];
-    %     layerMutateAt     = 6;
-    %     inputNodes2remove = [6021,6022];
-    %
-    %     layerMutateAt     = 5;
-    %     inputNodes2remove = [5011,5012];
-    %
-    %     layerMutateAt     = 15;
-    %     inputNodes2remove = [15011,15012];
-    
     outputNode2remove = max(inputNodes2remove)+1;
-    
     gate2remove       = outputNode2remove-3;
     disp(['Gate removed : ' num2str(gate2remove)])
     

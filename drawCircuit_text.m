@@ -1,4 +1,4 @@
-function [connectionMat_text] = drawCircuit_text(structureTemp,textCircuitsTemp,numOfOutputs,textOn)
+function [connectionMat_text] = drawCircuit_text(structureTemp,textCircuitsTemp,textOn)
 ymax = 10+size(textCircuitsTemp,1);
 xmax = 10+size(textCircuitsTemp,1);
 ymin = 0;
@@ -9,6 +9,9 @@ outletPointsInp  = [];
 inletPointsOut   = [];
 inletPointsNAND  = [];
 outletPointsNAND = [];
+
+numOfInputs  = structureTemp(1,2);
+numOfOutputs = structureTemp(end,2);
 
 axis([xmin xmax ymin ymax]);hold on;
 for l=1:size(structureTemp,1)

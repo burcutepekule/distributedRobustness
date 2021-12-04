@@ -90,7 +90,7 @@ connectTo   = cell2mat(textCircuitsTemp(k,3));
 
 cmap = lines(size(connectionMat_x,1));
 for k=1:size(connectionMat_x,1)
-%     line(connectionMat_x(k,:),connectionMat_y(k,:),'Color',cmap(k,:))
+    %     line(connectionMat_x(k,:),connectionMat_y(k,:),'Color',cmap(k,:))
     line(connectionMat_x(k,:),connectionMat_y(k,:),'Color','k')
 end
 axis tight
