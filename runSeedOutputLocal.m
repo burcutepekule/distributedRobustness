@@ -1,10 +1,10 @@
-function [] = runSeedOutputLocal(seed,outputMat,numOfInputs,numOfOutputs,numOfGates,numOfRuns,numOfCandidateSolutions)
+function [] = runSeedOutputLocal(seed,outputMat,numOfInputs,numOfOutputs,numOfGates,numOfCandidateSolutions,circuitSizeTh)
 % availableGPUs = gpuDeviceCount("available");
 % disp(['---------------- Number of available GPUs : ' num2str(availableGPUs) ' ----------------'])
 % parpool('local',availableGPUs);
 % parpool('local')
 rng(seed);
-clearvars -except seed outputMat numOfInputs numOfOutputs numOfGates numOfRuns numOfCandidateSolutions
+clearvars -except seed outputMat numOfInputs numOfOutputs numOfGates numOfRuns numOfCandidateSolutions circuitSizeTh
 disp(['---------------- Simulating seed ' num2str(seed) ' ----------------'])
 % EVOLUTION
 % The random mutations (always respecting the back- ward patterning) can be:
@@ -18,11 +18,11 @@ disp(['---------------- Simulating seed ' num2str(seed) ' ----------------'])
 % prob of mutation #2 0.3
 % prob of mutation #3 0.6
 sim = 1;
-[keepCircuits,keepStructure,keepNumOfLayers,textCircuits,strAllText] = generateRandomCircuits(numOfInputs,numOfOutputs,numOfGates,numOfRuns,numOfCandidateSolutions);
+[keepCircuits,keepStructure,keepNumOfLayers,textCircuits,strAllText] = generateRandomCircuits(numOfInputs,numOfOutputs,numOfGates,numOfCandidateSolutions);
 [fitness,~]                 = calculateFitnessAndFaultTolerance(textCircuits,keepStructure,outputMat,0);
 textCircuitsMutated         = textCircuits;
 structuresMutated           = keepStructure;
- 
+
 % find max fitness
 maxFitness           = max(fitness(sim,:),[],2);
 fittestCircuitIdx    = datasample(find(fitness(sim,:)==maxFitness),1); % sample one if multiple
@@ -50,7 +50,8 @@ disp(['---------------- degeneracy 1,2,3,UB : ' num2str(degeneracy) ' '  num2str
 save(['./local_output/BEFORE_TOL_FITTEST_CIRCUIT_SEED_' num2str(seed) '_' num2str(sim) '.mat'])
 
 sim = 2;
-while(maxFitness<1)
+
+while(maxFitness<1 && circuitSize<circuitSizeTh)
     disp(['---------------- seed ' num2str(seed) ', at simulation ' num2str(sim-1) ' ----------------'])
     
     structuresMutated       = [];
@@ -91,7 +92,7 @@ while(maxFitness<1)
     save(['./local_output/BEFORE_TOL_FITTEST_CIRCUIT_SEED_' num2str(seed) '_' num2str(sim) '.mat'])
     sim = sim + 1;
     
-
+    
 end
 
 save(['./local_output/BEFORE_TOL_ALL_SEED_' num2str(seed) '.mat'])
@@ -108,7 +109,7 @@ tolLength           = 4;
 keepFaultTolerance  = [];
 keepIndex           = [];
 faultTolerance      = [];
-while(sumDiffTolerance>0 || sumDiffIndex>0 || tolMeanTolerance<tolTolerance)
+while((sumDiffTolerance>0 || sumDiffIndex>0 || tolMeanTolerance<tolTolerance) && circuitSize<circuitSizeTh)
     disp(['---------------- seed ' num2str(seed) ', at simulation ' num2str(sim-1) ' ----------------'])
     
     structuresMutated       = [];
@@ -118,7 +119,15 @@ while(sumDiffTolerance>0 || sumDiffIndex>0 || tolMeanTolerance<tolTolerance)
     textCircuitsMutated     = fittestTextCircuit;
     structuresMutated{1}    = fittestStructure;
     
-    mutationIndexVec = datasample(1:3,numOfCandidateSolutions-1,'Weights',[0.8 0.3 0.6],'Replace',true);
+    
+    numOfMiddleGates = sum(fittestStructure(2:end-1,2));
+    
+    if(numOfMiddleGates>1)
+        mutationIndexVec = datasample(1:3,numOfCandidateSolutions-1,'Weights',[0.8 0.3 0.6],'Replace',true);
+    else
+        mutationIndexVec = datasample(1:3,numOfCandidateSolutions-1,'Weights',[0 0 1],'Replace',true); %can't remove gates
+    end
+    
     for mut=1:numOfCandidateSolutions-1
         [textCircuitsTemp_mutated,structureTemp_mutated] = mutateCircuit(fittestTextCircuit,fittestStructure,mutationIndexVec(mut));
         indexColumnCircuit            = cell2mat(textCircuitsTemp_mutated(:,1));
@@ -174,11 +183,14 @@ while(sumDiffTolerance>0 || sumDiffIndex>0 || tolMeanTolerance<tolTolerance)
     save(['./local_output/AFTER_TOL_FITTEST_CIRCUIT_SEED_' num2str(seed) '_' num2str(sim) '.mat'])
     sim = sim + 1;
 end
-
-disp(['---------------- seed ' num2str(seed) ', Tolerance converged, getting out of here. ----------------'])
-fittestStructureFinal     = structuresMutated{fittestCircuitIdx};
-fittestTextCircuitFinal   = textCircuitsMutated(cell2mat(textCircuitsMutated(:,1))==fittestCircuitIdx,:);
-save(['./local_output/AFTER_TOL_ALL_SEED_' num2str(seed) '.mat'])
+if(~(sumDiffTolerance>0 || sumDiffIndex>0 || tolMeanTolerance<tolTolerance))
+    disp(['---------------- seed ' num2str(seed) ', Tolerance converged, getting out of here. ----------------'])
+    fittestStructureFinal     = structuresMutated{fittestCircuitIdx};
+    fittestTextCircuitFinal   = textCircuitsMutated(cell2mat(textCircuitsMutated(:,1))==fittestCircuitIdx,:);
+    save(['./local_output/AFTER_TOL_ALL_SEED_' num2str(seed) '.mat'])
+else
+    disp(['----------------  seed ' num2str(seed) ', Circuit got too big to continue  ----------------'])
+end
 
 end
 

@@ -12,8 +12,8 @@ outletPointsNAND = [];
 
 numOfInputs  = structureTemp(1,2);
 numOfOutputs = structureTemp(end,2);
-
-axis([xmin xmax ymin ymax]);hold on;
+% axis([xmin xmax ymin ymax]);
+hold on;
 for l=1:size(structureTemp,1)
     layerTemp = structureTemp(l,1);
     gatesTemp = structureTemp(l,2);
@@ -23,12 +23,12 @@ for l=1:size(structureTemp,1)
     
     if(layerTemp==0) %input layer
         for i=1:gatesTemp
-            outletPointsInpTemp = drawINPUT(xPlotTemp,yPlotTemp(i));
+            outletPointsInpTemp = drawINPUT(xPlotTemp,yPlotTemp(i),1);
             outletPointsInp     = [outletPointsInp; repmat(layerTemp,1,1) repmat(i,1,1) outletPointsInpTemp];
         end
     else %mid layers
         for i=1:gatesTemp
-            [inletPointsTemp,outletPointsTemp] = drawNAND(xPlotTemp,yPlotTemp(i));
+            [inletPointsTemp,outletPointsTemp] = drawNAND(xPlotTemp,yPlotTemp(i),1);
             inletPointsNAND = [inletPointsNAND; repmat(layerTemp,2,1) repmat(i,2,1) inletPointsTemp];
             outletPointsNAND = [outletPointsNAND; repmat(layerTemp,1,1) repmat(i,1,1) outletPointsTemp];
         end
@@ -39,7 +39,7 @@ layerTemp = size(structureTemp,1)+1;
 yPlotTemp = linspace(ymin,ymax,numOfOutputs+2);
 yPlotTemp = yPlotTemp(2:end-1);
 for i=1:numOfOutputs
-    inletPointsOutTemp = drawOUTPUT(xPlot(end),yPlotTemp(i));
+    inletPointsOutTemp = drawOUTPUT(xPlot(end),yPlotTemp(i),1);
     inletPointsOut     = [inletPointsOut; repmat(layerTemp,1,1) repmat(i,1,1) inletPointsOutTemp];
 end
 

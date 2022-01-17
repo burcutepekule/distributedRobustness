@@ -2,9 +2,7 @@ clear all;close all;clc;
 fileinfoRDC    = dir(['./cluster_output/AFTER_TOL_ALL_SEED_*.mat']);
 allNames       = {fileinfoRDC.name};
 seedsConverged = str2double(extractBefore(extractAfter(allNames,'AFTER_TOL_ALL_SEED_'),'.mat'));
-%%GATHER DATA
-seedMat                  = [];
-
+%%
 circuitSizeMat_BT        = [];
 fitnessMat_BT            = [];
 faultToleranceMat_BT     = [];
@@ -24,7 +22,6 @@ redundancyMat_AT         = [];
 complexityMat_AT         = [];
 for s=seedsConverged
     s
-    seedMat                  = [seedMat;s];
     
     load(['./cluster_output/BEFORE_TOL_ALL_SEED_' num2str(s)])
     circuitSizeMat_BT        = [circuitSizeMat_BT;circuitSize];
@@ -59,9 +56,8 @@ cmap_BT  = [0 0 0]./255;
 %REDUNDANCY VS DEGENERACY
 subplot(2,2,1)
 hold on;
-scatter(redundancyMat_BT,degeneracyMat_BT,80,cmap_BT,'filled','^');
-hold on;
 scatter(redundancyMat_AT,degeneracyMat_AT,80,cmap_AT,'filled','o');
+scatter(redundancyMat_BT,degeneracyMat_BT,80,cmap_BT,'filled','^');
 % axis([0 max(redundancyMat_AT) 0 7])
 % axis([0 6 0 7])
 xlabel('Redundancy','FontSize', 22);
@@ -70,9 +66,8 @@ grid on;
 %DEGENERACY VS COMPLEXITY
 subplot(2,2,2)
 hold on;
-scatter(degeneracyMat_BT,complexityMat_BT,80,cmap_BT,'filled','^');
-hold on;
 scatter(degeneracyMat_AT,complexityMat_AT,80,cmap_AT,'filled','o');
+scatter(degeneracyMat_BT,complexityMat_BT,80,cmap_BT,'filled','^');
 % axis([0 7 0 10])
 xlabel('Degeneracy','FontSize', 22);
 ylabel('Complexity','FontSize', 22);
@@ -80,9 +75,8 @@ grid on;
 %CIRCUIT SIZE VS DEGENERACY
 subplot(2,2,3)
 hold on;
-scatter(circuitSizeMat_BT,degeneracyMat_BT,80,cmap_BT,'filled','^');
-hold on;
 scatter(circuitSizeMat_AT,degeneracyMat_AT,80,cmap_AT,'filled','o');
+scatter(circuitSizeMat_BT,degeneracyMat_BT,80,cmap_BT,'filled','^');
 % axis([5 max(circuitSizeMat_AT) 0 7])
 xlabel('Circuit Size','FontSize', 22);
 ylabel('Degeneracy','FontSize', 22);
@@ -90,9 +84,8 @@ grid on;
 %COMPLEXITY VS FAULT TOLERANCE
 subplot(2,2,4)
 hold on;
-scatter(complexityMat_BT,faultToleranceMat_BT,80,cmap_BT,'filled','^');
-hold on;
 scatter(complexityMat_AT,faultToleranceMat_AT,80,cmap_AT,'filled','o');
+scatter(complexityMat_BT,faultToleranceMat_BT,80,cmap_BT,'filled','^');
 % axis([0 10 0.6 1])
 xlabel('Complexity','FontSize', 22);
 ylabel('Fault Tolerance','FontSize', 22);

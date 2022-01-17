@@ -1,11 +1,33 @@
 
+rsync -av "btepek@cluster.s3it.uzh.ch:/net/cephfs/data/btepek/BEFORE_*" /Users/burcu/Dropbox/blogs/smallscaled/distributedRobustness/cluster_output/
+
+rsync -av "btepek@cluster.s3it.uzh.ch:/net/cephfs/data/btepek/AFTER_*" /Users/burcu/Dropbox/blogs/smallscaled/distributedRobustness/cluster_output/
 
 
-rsync -av "btepek@cluster.s3it.uzh.ch:/net/cephfs/home/btepek/DISTRIBUTEDROBUSTNESS/BEFORE_*" /Users/burcu/Dropbox/blogs/smallscaled/distributedRobustness/cluster_output/
+rsync -av "btepek@cluster.s3it.uzh.ch:/net/cephfs/data/btepek/DISTRIBUTEDROBUSTNESS/BEFORE_*" /Users/burcu/Dropbox/blogs/smallscaled/distributedRobustness/cluster_output/
 
-rsync -av "btepek@cluster.s3it.uzh.ch:/net/cephfs/home/btepek/DISTRIBUTEDROBUSTNESS/AFTER_*" /Users/burcu/Dropbox/blogs/smallscaled/distributedRobustness/cluster_output/
+rsync -av "btepek@cluster.s3it.uzh.ch:/net/cephfs/data/btepek/DISTRIBUTEDROBUSTNESS/AFTER_*" /Users/burcu/Dropbox/blogs/smallscaled/distributedRobustness/cluster_output/
 
+rsync -av "btepek@cluster.s3it.uzh.ch:/net/cephfs/home/btepek/DISTRIBUTEDROBUSTNESS/OUT_*" /Users/burcu/Dropbox/blogs/smallscaled/distributedRobustness/cluster_output/
+
+
+rsync -av "btepek@cluster.s3it.uzh.ch:/net/cephfs/data/btepek/DISTRIBUTEDROBUSTNESS/BEFORE_TOL_FITTEST_CIRCUIT_SIZE_SEED_*" /Users/burcu/Dropbox/blogs/smallscaled/distributedRobustness/cluster_output/
+
+rsync -av "btepek@cluster.s3it.uzh.ch:/net/cephfs/data/btepek/DISTRIBUTEDROBUSTNESS/BEFORE_TOL_FITTEST_CIRCUIT_SIZE_MVG_SEED_*" /Users/burcu/Dropbox/blogs/smallscaled/distributedRobustness/cluster_output/
 
 rsync -zarv  --prune-empty-dirs --include "*/"  --include="*.sh" --exclude="*" /Users/burcu/Dropbox/blogs/smallscaled/distributedRobustness/ btepek@cluster.s3it.uzh.ch:/net/cephfs/home/btepek/DISTRIBUTEDROBUSTNESS/
 
 rsync -zarv  --prune-empty-dirs --include "*/"  --include="*.m" --exclude="*" /Users/burcu/Dropbox/blogs/smallscaled/distributedRobustness/ btepek@cluster.s3it.uzh.ch:/net/cephfs/home/btepek/DISTRIBUTEDROBUSTNESS/
+
+rsync -av "btepek@cluster.s3it.uzh.ch:/net/cephfs/home/btepek/DISTRIBUTEDROBUSTNESS/BEFORE_*" "btepek@cluster.s3it.uzh.ch:/net/cephfs/data/btepek/DISTRIBUTEDROBUSTNESS/"
+
+rsync -av /net/cephfs/home/btepek/DISTRIBUTEDROBUSTNESS/BEFORE_* /net/cephfs/data/btepek/DISTRIBUTEDROBUSTNESS/
+
+rsync --remove-source-files -av /net/cephfs/home/btepek/DISTRIBUTEDROBUSTNESS/AFTER_* /net/cephfs/data/btepek/DISTRIBUTEDROBUSTNESS/
+
+rsync --remove-source-files -av /net/cephfs/home/btepek/DISTRIBUTEDROBUSTNESS/BEFORE_* /net/cephfs/data/btepek/DISTRIBUTEDROBUSTNESS/
+
+
+rsync -av "btepek@cluster.s3it.uzh.ch:/net/cephfs/data/btepek/DISTRIBUTEDROBUSTNESS/BEFORE_*" /Users/burcu/Dropbox/blogs/smallscaled/distributedRobustness/cluster_output/
+
+rsync -av "btepek@cluster.s3it.uzh.ch:/net/cephfs/data/btepek/DISTRIBUTEDROBUSTNESS/AFTER_*" /Users/burcu/Dropbox/blogs/smallscaled/distributedRobustness/cluster_output/

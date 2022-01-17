@@ -47,7 +47,7 @@ faultTolerancePick        = faultToleranceInitial(fittestCircuitIdx);
 disp(['---------------- seed ' num2str(seed) ', initialization complete, max fitness ' num2str(maxFitness) ' with index ' num2str(fittestCircuitIdx) ' ----------------'])
 disp(['---------------- degeneracy 1,2,3,UB : ' num2str(degeneracy) ' '  num2str(degeneracy2) ' '  num2str(degeneracy3) ' ' num2str(degeneracyUB) ' , redundancy : ' num2str(redundancy) ' ----------------'])
 
-save(['BEFORE_TOL_FITTEST_CIRCUIT_SEED_' num2str(seed) '_' num2str(sim) '.mat'])
+save(['/net/cephfs/data/btepek/DISTRIBUTEDROBUSTNESS/BEFORE_TOL_FITTEST_CIRCUIT_SEED_' num2str(seed) '_' num2str(sim) '.mat'])
 
 sim = 2;
 while(maxFitness<1)
@@ -82,19 +82,19 @@ while(maxFitness<1)
     faultTolerancePick            = faultToleranceTemp(fittestCircuitIdx);
     
     [keepOutput,keepAllOutput]   = solvePerturbedCircuit(1,fittestTextCircuit(:,2:3),fittestStructure,0);
-    [degeneracy,degeneracy2,degeneracy3,degeneracyUB,redundancy,complexity,complexity2,circuitSize,IsubOne,IallFinal,IsubMatKeep,IsubsubHatMatKeep,IsubHatMatKeep] = calculateDegeneracy(keepOutput,keepAllOutput,fittestStructure);
+    [degeneracy,degeneracy2,degeneracy3,degeneracyUB,redundancy,complexity,complexity2,circuitSize,IsubOne,IallFinal,IsubMatKeep,IsubsubHatMatKeep,IsubHatMatKeep,HsubsubHatMatKeep,HsubMatKeep,HsubHatMatKeep,HJointMatKeep,HJointHatMatKeep,HJointAllMatKeep,HOutputMatKeep] = calculateDegeneracy(keepOutput,keepAllOutput,fittestStructure);
     
     [keepOutput outputMat]
     
     disp(['---------------- seed ' num2str(seed) ', simulation ' num2str(sim-1) ' complete, max fitness ' num2str(maxFitness) ' with index ' num2str(fittestCircuitIdx) ' ----------------'])
     disp(['---------------- degeneracy 1,2,3,UB : ' num2str(degeneracy) ' '  num2str(degeneracy2) ' '  num2str(degeneracy3) ' ' num2str(degeneracyUB) ' , redundancy : ' num2str(redundancy) ' ----------------'])
-    save(['BEFORE_TOL_FITTEST_CIRCUIT_SEED_' num2str(seed) '_' num2str(sim) '.mat'])
+    save(['/net/cephfs/data/btepek/DISTRIBUTEDROBUSTNESS/BEFORE_TOL_FITTEST_CIRCUIT_SEED_' num2str(seed) '_' num2str(sim) '.mat'])
     sim = sim + 1;
     
 
 end
 
-save(['BEFORE_TOL_ALL_SEED_' num2str(seed) '.mat'])
+save(['/net/cephfs/data/btepek/DISTRIBUTEDROBUSTNESS/BEFORE_TOL_ALL_SEED_' num2str(seed) '.mat'])
 disp(['---------------- seed ' num2str(seed) ', max fitness of 1 achieved, now check fault tolerance convergence ----------------'])
 %%
 % clearvars -except seed
@@ -155,7 +155,7 @@ while(sumDiffTolerance>0 || sumDiffIndex>0 || tolMeanTolerance<tolTolerance)
     faultTolerancePick = faultTolerance(sim,fittestCircuitIdx);
     
     [keepOutput,keepAllOutput]   = solvePerturbedCircuit(1,fittestTextCircuit(:,2:3),fittestStructure,0);
-    [degeneracy,degeneracy2,degeneracy3,degeneracyUB,redundancy,complexity,complexity2,circuitSize,IsubOne,IallFinal,IsubMatKeep,IsubsubHatMatKeep,IsubHatMatKeep] = calculateDegeneracy(keepOutput,keepAllOutput,fittestStructure);
+    [degeneracy,degeneracy2,degeneracy3,degeneracyUB,redundancy,complexity,complexity2,circuitSize,IsubOne,IallFinal,IsubMatKeep,IsubsubHatMatKeep,IsubHatMatKeep,HsubsubHatMatKeep,HsubMatKeep,HsubHatMatKeep,HJointMatKeep,HJointHatMatKeep,HJointAllMatKeep,HOutputMatKeep] = calculateDegeneracy(keepOutput,keepAllOutput,fittestStructure);
     
     [keepOutput outputMat]
     
@@ -171,14 +171,14 @@ while(sumDiffTolerance>0 || sumDiffIndex>0 || tolMeanTolerance<tolTolerance)
         sumDiffIndex       = sum(abs(indexDiff)); %fittestCircuitIdx will be 1 for max(tolLength+1) and min(tolLength) times if same circuit converges
         tolMeanTolerance   = mean(keepFaultTolerance((end-tolLength):end));
     end
-    save(['AFTER_TOL_FITTEST_CIRCUIT_SEED_' num2str(seed) '_' num2str(sim) '.mat'])
+    save(['/net/cephfs/data/btepek/DISTRIBUTEDROBUSTNESS/AFTER_TOL_FITTEST_CIRCUIT_SEED_' num2str(seed) '_' num2str(sim) '.mat'])
     sim = sim + 1;
 end
 
 disp(['---------------- seed ' num2str(seed) ', Tolerance converged, getting out of here. ----------------'])
 fittestStructureFinal     = structuresMutated{fittestCircuitIdx};
 fittestTextCircuitFinal   = textCircuitsMutated(cell2mat(textCircuitsMutated(:,1))==fittestCircuitIdx,:);
-save(['AFTER_TOL_ALL_SEED_' num2str(seed) '.mat'])
+save(['/net/cephfs/data/btepek/DISTRIBUTEDROBUSTNESS/AFTER_TOL_ALL_SEED_' num2str(seed) '.mat'])
 
 end
 

@@ -564,11 +564,11 @@ while(any(backwardConnections))
 end
 
 % sprintf("Gate Added to layer : %d",add2layer);
-if(concat==1)
-    disp(['Gate Added to layer : ' num2str(add2layer) ' with concatenation.']);
-else
-    disp(['Gate Added to layer : ' num2str(add2layer) ' without concatenation.']);
-end
+% if(concat==1)
+%     disp(['Gate Added to layer : ' num2str(add2layer) ' with concatenation.']);
+% else
+%     disp(['Gate Added to layer : ' num2str(add2layer) ' without concatenation.']);
+% end
 
 end
 

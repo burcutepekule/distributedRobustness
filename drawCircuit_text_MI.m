@@ -1,4 +1,4 @@
-function [connectionMat_text] = drawCircuit_text_MI(structureTemp,textCircuitsTemp,IsubOneVals,IallFinalVals,degenval,redunval,textOnAll,textOnMI)
+function [connectionMat_text] = drawCircuit_text_MI(structureTemp,textCircuitsTemp,IsubOneVals,IallFinalVals,degenval,redunval,compval,textOnAll,textOnMI)
 ymax = 10+size(textCircuitsTemp,1);
 xmax = 10+size(textCircuitsTemp,1);
 ymin = 0;
@@ -25,13 +25,13 @@ for l=1:size(structureTemp,1)
     
     if(layerTemp==0) %input layer
         for i=1:gatesTemp
-            outletPointsInpTemp = drawINPUT(xPlotTemp,yPlotTemp(i));
+            outletPointsInpTemp = drawINPUT(xPlotTemp,yPlotTemp(i),1);
             outletPointsInp     = [outletPointsInp; repmat(layerTemp,1,1) repmat(i,1,1) outletPointsInpTemp];
             centerPointsInp     = [centerPointsInp; repmat(layerTemp,1,1) repmat(i,1,1) [xPlotTemp yPlotTemp(i)]];
         end
     else %mid layers
         for i=1:gatesTemp
-            [inletPointsTemp,outletPointsTemp] = drawNAND(xPlotTemp,yPlotTemp(i));
+            [inletPointsTemp,outletPointsTemp] = drawNAND(xPlotTemp,yPlotTemp(i),1);
             inletPointsNAND = [inletPointsNAND; repmat(layerTemp,2,1) repmat(i,2,1) inletPointsTemp];
             outletPointsNAND = [outletPointsNAND; repmat(layerTemp,1,1) repmat(i,1,1) outletPointsTemp];
         end
@@ -43,7 +43,7 @@ yPlotTemp = linspace(ymin,ymax,numOfOutputs+2);
 yPlotTemp = yPlotTemp(2:end-1);
 
 for i=1:numOfOutputs
-    inletPointsOutTemp = drawOUTPUT(xPlot(end),yPlotTemp(i));
+    inletPointsOutTemp = drawOUTPUT(xPlot(end),yPlotTemp(i),1);
     inletPointsOut     = [inletPointsOut; repmat(layerTemp,1,1) repmat(i,1,1) inletPointsOutTemp];
 end
 
@@ -144,7 +144,8 @@ for k=1:size(connectionMat_x,1)
     end
 end
 axis tight
-th=title(['$D_{Z}(X) : $ ', num2str(degenval) ,'$, R_{Z}(X) : $ ' num2str(redunval) ,'$, I(X,O) : $ ' , num2str(IallFinalVals)],'Fontsize',16,'interpreter','latex');
+th=title(['$R_{Z}(X) : $ ', num2str(redunval,3) ,'$, D_{Z}(X) : $ ' num2str(degenval,3),'$, C_{Z}(X) : $ ' num2str(compval,3)  ,'$, I(X,O) : $ ' , num2str(IallFinalVals,3)],'Fontsize',16,'interpreter','latex');
+% th=title(['$D_{Z}(X) : $ ', num2str(degenval,3) ,'$, R_{Z}(X) : $ ' num2str(redunval,3),'$, C_{Z}(X) : $ ' num2str(compval,3)  ,'$, I(X,O) : $ ' , num2str(IallFinalVals,3)],'Fontsize',16,'interpreter','latex');
 titlePos = get( th , 'position');
 % change the x value  to 0
 titlePos(2) = titlePos(2)+0.25;

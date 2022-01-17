@@ -1,8 +1,13 @@
-function [inletPoints,outletPoints] = drawNAND(x,y)
+function [inletPoints,outletPoints] = drawNAND(x,y,plotOn)
 P    = [x-0.5 y-0.5; x+0 y-0.5; x+0.5 y+0; x+0 y+0.5; x-0.5 y+0.5];
 pgon = polyshape(P);
 % plot(pgon, 'FaceColor',[0.1475    0.6043    0.9113])
-plot(pgon, 'FaceColor',[0.2422    0.1504    0.6603])
+if(plotOn==1)
+%     plot(pgon, 'FaceColor',[0.2422    0.1504    0.6603])
+%     plot(pgon, 'FaceColor',[12 30 127]./255,'FaceAlpha',1)
+    plot(pgon, 'FaceColor',[0 0 0]./255,'FaceAlpha',0.9)
+
+end
 % c=bone(100);
 % plot(pgon, 'FaceColor',c(10,:))
 

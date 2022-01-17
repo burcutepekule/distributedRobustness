@@ -1,10 +1,11 @@
-function [degeneracy,degeneracy2,degeneracy3,degeneracyUB,redundancy,complexity,complexity2,circuitSize,IsubOne,IallFinal,IsubMatKeep,IsubsubHatMatKeep,IsubHatMatKeep] = calculateDegeneracy(keepOutput,keepAllOutput,fittestStructure)
+function [degeneracy,degeneracy2,degeneracy3,degeneracyUB,redundancy,complexity,complexity2,circuitSize,IsubOne,IallFinal,IsubMatKeep,IsubsubHatMatKeep,IsubHatMatKeep,HsubsubHatMatKeep,HsubMatKeep,HsubHatMatKeep,HJointMatKeep,HJointHatMatKeep,HJointAllMatKeep,HOutputMatKeep] = calculateDegeneracy(keepOutput,keepAllOutput,fittestStructure)
 numOfInputs   = fittestStructure(1,2);
 numOfGates    = sum(fittestStructure(2:end-1,2));
 numOfOutputs  = fittestStructure(end,2);
 outputMat     = keepAllOutput(:,2:4);
 C             = outputMat(:,2);
-Cj            = cat(1, C{:});
+Cj            = cat(1, C(:));
+% Cj            = cat(1, C{:}); %for solvePerturbedCircuit_old
 allGates      = Cj(1:(numOfInputs+numOfGates+numOfOutputs));
 inputGates    = allGates(1:numOfInputs);
 outputGates   = allGates(end-numOfOutputs+1:end);
@@ -18,24 +19,38 @@ IsubVecKeep        = [];
 complexityVec      = [];
 Z                  = length(middleGates);
 IsubsubHatMatKeep  = NaN*ones(Z,nchoosek(length(middleGates),round(length(middleGates)/2)));
+HsubsubHatMatKeep  = NaN*ones(Z,nchoosek(length(middleGates),round(length(middleGates)/2)));
 IsubMatKeep        = NaN*ones(Z,nchoosek(length(middleGates),round(length(middleGates)/2)));
 IsubHatMatKeep     = NaN*ones(Z,nchoosek(length(middleGates),round(length(middleGates)/2)));
+HsubMatKeep        = NaN*ones(Z,nchoosek(length(middleGates),round(length(middleGates)/2)));
+HsubHatMatKeep     = NaN*ones(Z,nchoosek(length(middleGates),round(length(middleGates)/2)));
+HJointMatKeep      = NaN*ones(Z,nchoosek(length(middleGates),round(length(middleGates)/2)));
+HJointHatMatKeep   = NaN*ones(Z,nchoosek(length(middleGates),round(length(middleGates)/2)));
+HJointAllMatKeep   = NaN*ones(Z,nchoosek(length(middleGates),round(length(middleGates)/2)));
+HOutputMatKeep     = NaN*ones(Z,nchoosek(length(middleGates),round(length(middleGates)/2)));
+
 HSubOutputSum = 0;
 HSubOutputVec = [];
 for k=1:Z
     disp(['Calculating for ' num2str(k) '-gate subcircuits...'])
-    gates2use     = nchoosek(middleGates,k);
+    gates2use     = nchoosek(middleGates,k); % since this is gonna blow up for large circuits, put a limit in the main script to terminate after a certain size
     degeneracyVec = [];
     degeneracyVec2= [];
     IallVec       = [];
     IsubsubHatVec = [];
     IsubVec       = [];
     IxSubVec      = [];
+    if(size(gates2use,2)==1)
+        [~,indOrder]    = sort(str2double(extractAfter(gates2use,"i_")'));
+        gates2use       = gates2use(indOrder); %to prevent "10013" to come before  "1013"
+    end
     for i=1:size(gates2use,1)
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         if(size(gates2use,2)>1)
             gatesSubTemp    = gates2use(i,:);
-        else
+            [~,indOrder]    = sort(str2double(extractAfter(gatesSubTemp,"i_")'));
+            gatesSubTemp    = gatesSubTemp(indOrder); %to prevent "10013" to come before  "1013"
+        else 
             gatesSubTemp    = gates2use(i);
         end
         gatesSubHatTemp = setdiff(middleGates,gatesSubTemp);
@@ -69,10 +84,10 @@ for k=1:Z
         pJointSubHatDist  = unique(pJointSubHat,'rows');
         
         
-        HSubOutput    = -sum(pSubOutputDist(:,end).*log(pSubOutputDist(:,end))); %H(X_i^k)
-        HSubOutputHat = -sum(pSubOutputHatDist(:,end).*log(pSubOutputHatDist(:,end)));%H(X_i^khat)
-        HAllOutput    = -sum(pAllOutputDist(:,end).*log(pAllOutputDist(:,end)));%H(X)
-        HOutput       = -sum(pOutputDist(:,end).*log(pOutputDist(:,end)));%H(O)
+        HSub    = -sum(pSubOutputDist(:,end).*log(pSubOutputDist(:,end))); %H(X_i^k)
+        HSubHat = -sum(pSubOutputHatDist(:,end).*log(pSubOutputHatDist(:,end)));%H(X_i^khat)
+        HAll    = -sum(pAllOutputDist(:,end).*log(pAllOutputDist(:,end)));%H(X)
+        HOutput = -sum(pOutputDist(:,end).*log(pOutputDist(:,end)));%H(O)
         
         
         HJoint        = -sum(pJointDist(:,end).*log(pJointDist(:,end))); %H(X_i^k,O)
@@ -82,10 +97,10 @@ for k=1:Z
         
         %                 round([HSubOutput;HSubOutputHat;HAllOutput;HOutput;HJoint;HJointHat;HJointAll],2) %table 2
         
-        Isub       = HSubOutput+HOutput-HJoint; % I(X_i^k,O) = H(X_i^k) + H(O) - H(X_i^k,O)
-        IsubHat    = HSubOutputHat+HOutput-HJointHat; % I(X_i^khat,O) = H(X_i^khat) + H(O) - H(X_i^khat,O)
-        Iall       = HAllOutput+HOutput-HJointAll; % I(X,O) = H(X) + H(O) - H(X,O)
-        IsubsubHat = HSubOutput+HSubOutputHat-HJointSubHat;% I(X_i^k,X_i^khat) = H(X_i^k) + H(X_i^khat) - H(X_i^k,X_i^khat)
+        Isub       = HSub+HOutput-HJoint; % I(X_i^k,O) = H(X_i^k) + H(O) - H(X_i^k,O)
+        IsubHat    = HSubHat+HOutput-HJointHat; % I(X_i^khat,O) = H(X_i^khat) + H(O) - H(X_i^khat,O)
+        Iall       = HAll+HOutput-HJointAll; % I(X,O) = H(X) + H(O) - H(X,O)
+        IsubsubHat = HSub+HSubHat-HJointSubHat;% I(X_i^k,X_i^khat) = H(X_i^k) + H(X_i^khat) - H(X_i^k,X_i^khat)
         
         %                 round([Isub;IsubHat;Iall;(Isub+IsubHat-Iall)],3)%Table 4
         
@@ -99,15 +114,22 @@ for k=1:Z
         IsubsubHatVec  = [IsubsubHatVec IsubsubHat];
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         IsubsubHatMatKeep(k,i)  = IsubsubHat;
+        HsubsubHatMatKeep(k,i)  = HJointSubHat;
         IsubMatKeep(k,i)        = Isub;
+        HsubMatKeep(k,i)        = HSub;
         IsubHatMatKeep(k,i)     = IsubHat;
+        HsubHatMatKeep(k,i)     = HSubHat;
+        HJointMatKeep(k,i)      = HJoint;
+        HJointHatMatKeep(k,i)   = HJointHat;
+        HJointAllMatKeep(k,i)   = HJointAll;
+        HOutputMatKeep(k,i)     = HOutput;
 
         if(k==1)
-            HSubOutputSum = HSubOutputSum+HSubOutput;
-            HSubOutputVec = [HSubOutputVec HSubOutput];
+            HSubOutputSum = HSubOutputSum+HSub;
+            HSubOutputVec = [HSubOutputVec HSub];
         end
         inds     = idxSub(1,:)-numOfInputs;
-        IxSubVec = [IxSubVec sum(HSubOutputVec(inds))-HSubOutput];
+        IxSubVec = [IxSubVec sum(HSubOutputVec(inds))-HSub];
     end
     degeneracyVecMean  = [degeneracyVecMean mean(degeneracyVec)];
     degeneracyVec2Mean = [degeneracyVec2Mean mean(degeneracyVec2)-(k/Z)*Iall];
@@ -116,7 +138,7 @@ for k=1:Z
     IsubVecKeep{k}     = IsubVec;
     %TONINI 1998
     if(k==1)
-        Ix = HSubOutputSum-HAllOutput;
+        Ix = HSubOutputSum-HAll;
     end
     complexityVec      = [complexityVec (k/Z)*Ix-mean(IxSubVec)];
 end
