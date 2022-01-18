@@ -1,3 +1,4 @@
+
 function [] = printGIF_MVG(totalNum,freqAlternate,seed)
 
 filename = ['./cluster_output/circuitsAnimated_MVG_SEED_' num2str(seed) '.gif'] ;
@@ -6,10 +7,20 @@ for simIdx=[1 freqAlternate:freqAlternate:totalNum]
     
     load(['./cluster_output/BEFORE_TOL_FITTEST_CIRCUIT_SIZE_MVG_MUT_SEED_' num2str(seed) '_' num2str(simIdx) '.mat']);
     
+    
     if(logical(mod(floor((simIdx-1)./freqAlternate),2)))
-        titleText = {'Using output #2'};
+        if(simIdx==1)
+            titleText = {'Initialization : Using output #2'};
+        else
+            titleText = {'End of epoch : Using output #2'};
+        end
     else
-        titleText = {'Using output #1'};
+        
+        if(simIdx==1)
+            titleText = {'Initialization : Using output #1'};
+        else
+            titleText = {'End of epoch : Using output #1'};
+        end
     end
 
     
@@ -30,7 +41,6 @@ for simIdx=[1 freqAlternate:freqAlternate:totalNum]
     cmap     = bone(4);
     cmap     = [cmap(1:3,:);[255, 42, 38]./255;[255, 114, 111]./255];
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    
     cla(ha(1))
     axes(ha(1))
 %     connectionMatInitial = drawCircuit_text(structureTemp,textCircuitsTemp,0);

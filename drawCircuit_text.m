@@ -95,7 +95,7 @@ end
 
 for k=1:size(connectionMat_x,1)
     %     line(connectionMat_x(k,:),connectionMat_y(k,:),'Color',cmap(k,:))
-    line(connectionMat_x(k,:),connectionMat_y(k,:),'Color','k')
+    line(connectionMat_x(k,:),connectionMat_y(k,:),'Color','k','Linewidth',1)
     if(textOn==1)
         text(connectionMat_x(k,1),connectionMat_y(k,1),connectionMat_text(k,1),'FontWeight','bold')
         text(connectionMat_x(k,2),connectionMat_y(k,2),connectionMat_text(k,2),'FontWeight','bold')

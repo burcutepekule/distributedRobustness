@@ -5,7 +5,7 @@ pgon = polyshape(P);
 if(plotOn==1)
 %     plot(pgon, 'FaceColor',[0.2422    0.1504    0.6603])
 %     plot(pgon, 'FaceColor',[12 30 127]./255,'FaceAlpha',1)
-    plot(pgon, 'FaceColor',[0 0 0]./255,'FaceAlpha',0.9)
+    plot(pgon, 'FaceColor',[0 0 0]./255,'FaceAlpha',0.8)
 
 end
 % c=bone(100);

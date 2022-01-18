@@ -187,7 +187,7 @@ textprogressbar('Done.');
 % connPick to textCircuitsTempNew
 [textCircuitsTempNew] = conn2textCircuit(connPickNewDouble);
 
-allGates = unique(sort(mapNew(:)));
+allGates = unique(floor(connPickNewDouble(connPickNewDouble>100)./10));
 textCircuitsTempNew01=textCircuitsTempNew;
 for j=1:length(allGates)
     gateCheck = 10*allGates(j);

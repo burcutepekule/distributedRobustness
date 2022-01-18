@@ -33,7 +33,8 @@ for seed = seedPick
     
 end
 %% GIF
-close all;
-seedPick = 9;
-totalNumVecSortedPick = totalNumVecSorted(ismember(seedSorted,seedPick));
-printGIF_MVG(totalNumVecSortedPick,freqAlternate,seedPick)
+for seed = seedPick
+    close all;
+    totalNumVecSortedPick = totalNumVecSorted(ismember(seedSorted,seed));
+    printGIF_MVG(totalNumVecSortedPick,freqAlternate,seed)
+end

@@ -100,6 +100,4 @@ drawCircuit_text(structureTemp,textCircuitsTemp,0);
 %%
 drawCircuit_text_optimal(structureTemp,textCircuitsTemp,0);
 %%
-printGIF_MVG(1200,freqAlternate,3)
-
 
