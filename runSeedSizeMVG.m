@@ -1,7 +1,4 @@
 function [] = runSeedSizeMVG(seed,mutProb,numOfGatesVec,onlyChangeConnections)
-
-
-
 % fix the output
 numOfInputs    = 4; %number of inputs
 % THIS IS TO REPLICATE THE RESULTS OF URI ALON
